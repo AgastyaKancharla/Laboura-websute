@@ -1,8 +1,6 @@
 name: Fetch stock photos
 on:
   workflow_dispatch:
-  push:
-    paths: ['tools/photos.json', 'tools/fetch_photos.py']
 permissions:
   contents: write
 jobs:
