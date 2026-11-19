@@ -376,7 +376,7 @@ if (toc.length){ const secs = toc.map(a => document.getElementById(a.getAttribut
 
 /* refund policy: date checkers */
 const fmtD = d => d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-[['#rc-job', 30, d => `Your 30 days end on <b>${fmtD(d)}</b>. No job offer by then? Call us for your full ₹499.`], ['#rc-biz', 60, d => `Free replacement until <b>${fmtD(d)}</b>. If your hire leaves before then, call us.`]].forEach(([sel, n, msg]) => {
+[['#rc-job', 30, d => `Your 30 days end on <b>${fmtD(d)}</b>. No job offer by then? Call us for your full fee back.`], ['#rc-biz', 60, d => `Free replacement until <b>${fmtD(d)}</b>. If your hire leaves before then, call us.`]].forEach(([sel, n, msg]) => {
   const inp = $(sel); if (!inp) return; const out = inp.closest('.rc-box').querySelector('.rc-out');
   inp.addEventListener('change', () => { if (!inp.value) return; const d = new Date(inp.value + 'T00:00:00'); d.setDate(d.getDate() + n);
     const left = Math.ceil((d - new Date()) / 864e5); out.innerHTML = msg(d) + (left > 0 ? ` <span>${left} days to go.</span>` : ' <span>That date has passed.</span>'); }); });
@@ -538,4 +538,56 @@ if (fxd){
 
 function frame(){ loops.forEach(f => f()); requestAnimationFrame(frame); }
 requestAnimationFrame(frame);
+})();
+
+/* ---------- Replacement policy: is my case covered? ---------- */
+(() => {
+  const box = document.querySelector('.rk'); if (!box) return;
+  const out = box.querySelector('.rk-out'), bs = [...box.querySelectorAll('.rk-b')];
+  bs.forEach(b => b.addEventListener('click', () => {
+    bs.forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    const ok = b.dataset.ok === '1';
+    box.classList.toggle('yes', ok); box.classList.toggle('no', !ok);
+    out.innerHTML = ok ? '<b>Covered.</b> <span>Tell us within 7 days and we send a free replacement in 7 to 15 days.</span>'
+                       : '<b>Not covered.</b> <span>The free replacement is for people who leave for their own reasons, when the job was as agreed. You can still hire again at the normal fee.</span>';
+    out.classList.remove('pop'); void out.offsetWidth; out.classList.add('pop');
+  }));
+})();
+
+/* ---------- Worker consent: the 3-day rule ---------- */
+(() => {
+  const box = document.querySelector('.hx'); if (!box) return;
+  const ds = [...box.querySelectorAll('.hx-d')], out = box.querySelector('.hx-out');
+  const upd = () => {
+    const first = ds.findIndex(d => d.getAttribute('aria-pressed') === 'true');
+    ds.forEach((d, i) => { const st = first < 0 || i < first ? 'miss' : i === first ? 'reply' : 'idle';
+      d.dataset.st = st; d.querySelector('em').textContent = st === 'miss' ? 'No reply' : st === 'reply' ? 'You replied' : 'Not needed'; });
+    out.innerHTML = first < 0 ? '<b>3 misses.</b> Your profile stops and the fee is used up. Call us back to make it active again.'
+                              : `<b>${first} miss${first === 1 ? '' : 'es'}, then you replied.</b> Your profile stays active.`;
+    box.classList.toggle('lost', first < 0);
+  };
+  ds.forEach((d, i) => d.addEventListener('click', () => {
+    const on = d.getAttribute('aria-pressed') === 'true';
+    ds.forEach(x => x.setAttribute('aria-pressed', 'false'));
+    if (!on) d.setAttribute('aria-pressed', 'true');
+    upd();
+  }));
+  upd();
+})();
+
+/* ---------- Report fraud: send the report on WhatsApp ---------- */
+(() => {
+  const f = document.getElementById('frf-form'); if (!f) return;
+  const err = f.querySelector('.frf-err'), E = f.elements;
+  E.phone.addEventListener('input', () => { E.phone.value = E.phone.value.replace(/\D/g, '').slice(0, 10); });
+  f.addEventListener('submit', e => {
+    e.preventDefault(); err.hidden = true;
+    if (!E.what.value.trim()){ err.textContent = 'Please tell us what happened.'; err.hidden = false; E.what.focus(); return; }
+    if (!/^[6-9]\d{9}$/.test(E.phone.value)){ err.textContent = 'Please write your 10-digit mobile number, so we can call you back.'; err.hidden = false; E.phone.focus(); return; }
+    const t = ['Fraud report from the Laboura website', '', 'What: ' + f.querySelector('[name=kind]:checked').value,
+      'Their number, UPI or website: ' + (E.them.value.trim() || 'Not known'), 'Money paid: ' + (E.paid.value.trim() || 'Not said'),
+      '', E.what.value.trim(), '', 'My phone: +91 ' + E.phone.value].join('\n');
+    window.open('https://wa.me/91XXXXXXXXXX?text=' + encodeURIComponent(t), '_blank', 'noopener');
+    f.innerHTML = '<div class="frf-done"><span class="eq-tick" aria-hidden="true"></span><h3>Thank you for telling us.</h3><p>Your report is ready in WhatsApp. Press send there. We reply within 24 hours.</p></div>';
+  });
 })();
