@@ -337,8 +337,8 @@ function initGL(){
     /* phones: the film fills the free space between the header and the hero text */
     const capEl = story.querySelector('.hero-cap'), pxW = 2 * H / h;
     const bandTop = H - 92 * pxW, bandBot = capEl ? H - Math.max(capEl.offsetTop - 14, h * .38) * pxW : -H * .1, band = bandTop - bandBot;
-    const s1 = wide ? H * .36 : Math.min(band * .84 / 2, W * .9), fyA = wide ? H * .46 : bandBot + s1 + Math.max(0, band * .84 - 2 * s1) * .5, p1x = wide ? -W * .1 : 0;
-    const shopAsp = 440 / 500, shopW = wide ? W * .3 : Math.min(W * 1.22, band * .86 / shopAsp), shopH = shopW * shopAsp, shopX = wide ? W * .34 : W * .2;
+    const s1 = wide ? H * .36 : Math.min(band * .74 / 2, W * .8), fyA = wide ? H * .46 : bandBot + s1 + Math.max(0, band * .84 - 2 * s1) * .5, p1x = wide ? -W * .1 : 0;
+    const shopAsp = 440 / 500, shopW = wide ? W * .3 : Math.min(W * 1.08, band * .76 / shopAsp), shopH = shopW * shopAsp, shopX = wide ? W * .34 : W * .2;
     const yb = wide ? H * .12 : bandBot + (band - shopH) * .5, ownH = shopH * .86, ownX = shopX - shopW * .62;
     anchors.head1.set(p1x + s1 * .55, fyA + s1 * .98, 0); anchors.head2.set(ownX + ownH * .1, yb + ownH, 0);
     dotFilm[1] = place(A.i0, ALL, gridSample(300, 600, drawPerson('wave'), ALL.length), p1x, fyA - s1, s1, 2);
@@ -347,7 +347,7 @@ function initGL(){
     dotFilm[2] = (d1 + d2) / 2;
     const T = textCanvas(wide ? [[{ t: 'One missed call.', g: 0 }], [{ t: 'Get a job.', g: 1 }, { t: '  ', g: -1 }, { t: 'Hire staff.', g: 2 }]]
                               : [[{ t: 'One missed', g: 0 }], [{ t: 'call.', g: 0 }], [{ t: 'Get a job.', g: 1 }], [{ t: 'Hire staff.', g: 2 }]]);
-    const tAsp = T.ch / T.cw, TW = wide ? Math.min(W * 1.75, H * .62 / tAsp) : Math.min(W * 1.86, band * .92 / tAsp);
+    const tAsp = T.ch / T.cw, TW = wide ? Math.min(W * 1.75, H * .62 / tAsp) : Math.min(W * 1.7, band * .8 / tAsp);
     const txL = -W + (wide ? W * .1 : W * .07), txB = wide ? H * .79 - tAsp * TW : bandBot + (band - tAsp * TW) * .5;
     const tx = [txt0, txt1, txt2].map((idx, g) => place(A.p0, idx, gridSample(T.cw, T.ch, T.drawGroup(g), idx.length), txL + TW / 2, txB, TW, tAsp));
     dotFilm[3] = Math.max(...tx); dotScene[0] = dotFilm[3];
