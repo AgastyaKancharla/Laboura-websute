@@ -9,12 +9,12 @@ const dialHint = document.getElementById('dial-hint'), dial = document.getElemen
 const vennEls = { seek: document.getElementById('venn-seek'), biz: document.getElementById('venn-biz'), core: document.getElementById('venn-core') };
 /* scenes: 0 hero sentence, 1 the logo, 2-6 the five promises, 7-11 India state by state, 12-14 how it works, 15 wordmark */
 const SCENES = 15, PROMISE0 = 2, PROMISE1 = 6, INDIA0 = 7, INDIA1 = 11, HIW0 = 12, HIW1 = 14;
-/* scroll stops: 0 hero, 1 logo, 2 the promises (one frame, tap or auto), 3 India (one frame, tap a state), 4-6 how it works, 7 wordmark */
-const STOPS = 7, ROTATE_MS = 3500;
+/* scroll stops: 0 hero, 1 logo, 2 the promises (one frame, tap or auto), 3 India (one frame, tap a state), 4 how it works (all steps), 5 wordmark */
+const STOPS = 5, ROTATE_MS = 3500;
 let pIdx = 0, iK = 0, pStart = performance.now(), pPause = 0, tapped = false;
 const indiaAt = k => INDIA0 + k / 9 * (INDIA1 - INDIA0);
 function toFilm(s){
-  const v = [0, 1, PROMISE0 + pIdx, indiaAt(iK), HIW0, HIW0 + 1, HIW1, SCENES];
+  const v = [0, 1, PROMISE0 + pIdx, indiaAt(iK), HIW0, SCENES];
   const k = Math.min(Math.floor(s), STOPS - 1), f = s - k;
   if (s >= STOPS) return SCENES;
   const A = v[k], B = v[k + 1];
@@ -329,9 +329,12 @@ function initGL(){
       return g.step * scaleW;
     };
     /* film */
-    const s1 = wide ? H * .36 : H * .27, fyA = wide ? H * .46 : H * .44, p1x = wide ? -W * .1 : 0;
-    const shopW = wide ? W * .3 : W * .66, shopAsp = 440 / 500, shopH = shopW * shopAsp, shopX = wide ? W * .34 : W * .3;
-    const yb = wide ? H * .12 : H * .4 - shopH * .5, ownH = shopH * .86, ownX = shopX - shopW * .72;
+    /* phones: the film fills the free space between the header and the hero text */
+    const capEl = story.querySelector('.hero-cap'), pxW = 2 * H / h;
+    const bandTop = H - 92 * pxW, bandBot = capEl ? H - Math.max(capEl.offsetTop - 14, h * .38) * pxW : -H * .1, band = bandTop - bandBot;
+    const s1 = wide ? H * .36 : Math.min(band * .84 / 2, W * .9), fyA = wide ? H * .46 : bandBot + s1 + Math.max(0, band * .84 - 2 * s1) * .5, p1x = wide ? -W * .1 : 0;
+    const shopAsp = 440 / 500, shopW = wide ? W * .3 : Math.min(W * 1.22, band * .86 / shopAsp), shopH = shopW * shopAsp, shopX = wide ? W * .34 : W * .2;
+    const yb = wide ? H * .12 : bandBot + (band - shopH) * .5, ownH = shopH * .86, ownX = shopX - shopW * .62;
     anchors.head1.set(p1x + s1 * .55, fyA + s1 * .98, 0); anchors.head2.set(ownX + ownH * .1, yb + ownH, 0);
     dotFilm[1] = place(A.i0, ALL, gridSample(300, 600, drawPerson('wave'), ALL.length), p1x, fyA - s1, s1, 2);
     const d1 = place(A.i1, shopIdx, gridSample(500, 440, drawShop, shopIdx.length), shopX, yb, shopW, shopAsp);
@@ -339,8 +342,8 @@ function initGL(){
     dotFilm[2] = (d1 + d2) / 2;
     const T = textCanvas(wide ? [[{ t: 'One missed call.', g: 0 }], [{ t: 'Get a job.', g: 1 }, { t: '  ', g: -1 }, { t: 'Hire staff.', g: 2 }]]
                               : [[{ t: 'One missed', g: 0 }], [{ t: 'call.', g: 0 }], [{ t: 'Get a job.', g: 1 }], [{ t: 'Hire staff.', g: 2 }]]);
-    const tAsp = T.ch / T.cw, TW = wide ? Math.min(W * 1.75, H * .62 / tAsp) : Math.min(W * 1.84, H * .64 / tAsp);
-    const txL = -W + (wide ? W * .1 : W * .08), txB = (wide ? H * .79 : H * .8) - tAsp * TW;
+    const tAsp = T.ch / T.cw, TW = wide ? Math.min(W * 1.75, H * .62 / tAsp) : Math.min(W * 1.86, band * .92 / tAsp);
+    const txL = -W + (wide ? W * .1 : W * .07), txB = wide ? H * .79 - tAsp * TW : bandBot + (band - tAsp * TW) * .5;
     const tx = [txt0, txt1, txt2].map((idx, g) => place(A.p0, idx, gridSample(T.cw, T.ch, T.drawGroup(g), idx.length), txL + TW / 2, txB, TW, tAsp));
     dotFilm[3] = Math.max(...tx); dotScene[0] = dotFilm[3];
 
@@ -385,7 +388,7 @@ function initGL(){
         dotScene[15] = place(SC[15], ALL, g, 0, cy - asp * ws / 2, ws, asp);
       } else ALL.forEach((i, j) => { const p = pick(wmPts, j, 5); put(SC[15], i, p[0] * ws, cy + p[1] * ws, 0); });
     }
-    hiwGeom = { wide, place, put, cx: wide ? W * .38 : 0, cy: wide ? 0 : H * .5, sz: wide ? H * 1.3 : Math.min(W * 1.2, H * .56) };
+    hiwGeom = { wide, place, put, cx: wide ? W * .58 : 0, cy: wide ? 0 : H * .5, sz: wide ? H * 1.1 : Math.min(W * 1.2, H * .56) };
     buildHIW();
     FILM.forEach(n => { geo.attributes[n].needsUpdate = true; copyLines(n, A[n]); });
     pairK = -1; setPair(0);
@@ -536,10 +539,7 @@ function frame(now){
     s.spans.forEach((w, i) => { w.classList.toggle('lit', i < n); }); });
   if (hiw){
     const inH = prog > HIW0 - .5 && prog < HIW1 + .5; hiw.classList.toggle('show', inH); hiw.inert = !inH;
-    const st = Math.min(Math.max(Math.round(prog) - HIW0, 0), 2), fill = Math.min(Math.max((prog - HIW0) / (HIW1 - HIW0), 0), 1);
-    hiw.style.setProperty('--fill', fill);
-    hiwPaths.forEach(p => p.querySelectorAll('li').forEach((li, i) => li.classList.toggle('on', i === st)));
-    hiw.classList.toggle('last', st === 2);
+    stage.classList.toggle('hiw-on', inH && Math.abs(prog - HIW0) < .45);
   }
   if (panel){
     const inI = prog > INDIA0 - .5 && prog < INDIA1 + .5; panel.classList.toggle('show', inI);
