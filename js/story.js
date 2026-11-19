@@ -9,12 +9,12 @@ const dialHint = document.getElementById('dial-hint'), dial = document.getElemen
 const vennEls = { seek: document.getElementById('venn-seek'), biz: document.getElementById('venn-biz'), core: document.getElementById('venn-core') };
 /* scenes: 0 hero sentence, 1 the logo, 2-6 the five promises, 7-11 India state by state, 12-14 how it works, 15 wordmark */
 const SCENES = 15, PROMISE0 = 2, PROMISE1 = 6, INDIA0 = 7, INDIA1 = 11, HIW0 = 12, HIW1 = 14;
-/* scroll stops: 0 hero, 1 logo, 2 the promises (one frame, tap or auto), 3 India (one frame, tap a state), 4 how it works (all steps), 5 wordmark */
-const STOPS = 5, ROTATE_MS = 3500;
+/* scroll stops: 0 hero, 1 logo, 2 the promises (one frame, tap or auto), 3 India (one frame, tap a state), 4 how it works (all steps), 5 why Laboura, 6 wordmark */
+const STOPS = 6, ROTATE_MS = 3500;
 let pIdx = 0, iK = 0, pStart = performance.now(), pPause = 0, tapped = false;
 const indiaAt = k => INDIA0 + k / 9 * (INDIA1 - INDIA0);
 function toFilm(s){
-  const v = [0, 1, PROMISE0 + pIdx, indiaAt(iK), HIW0, SCENES];
+  const v = [0, 1, PROMISE0 + pIdx, indiaAt(iK), HIW0, HIW1, SCENES];
   const k = Math.min(Math.floor(s), STOPS - 1), f = s - k;
   if (s >= STOPS) return SCENES;
   const A = v[k], B = v[k + 1];
@@ -22,7 +22,7 @@ function toFilm(s){
   /* far apart (e.g. the 3rd promise to the map): leave the current frame, then arrive at the next one, never passing through the frames between */
   const sg = Math.sign(B - A); return f < .5 ? A + sg * f : B - sg * (1 - f);
 }
-const hiw = document.getElementById('hiw'), hiwTabs = hiw ? [...hiw.querySelectorAll('[role="tab"]')] : [], hiwPaths = hiw ? [...hiw.querySelectorAll('.hiw-path')] : [];
+const why = document.getElementById('why'), hiw = document.getElementById('hiw'), hiwTabs = hiw ? [...hiw.querySelectorAll('[role="tab"]')] : [], hiwPaths = hiw ? [...hiw.querySelectorAll('.hiw-path')] : [];
 let hiwMode = 'job';
 const panel = document.getElementById('india-panel'), ips = panel ? [...panel.querySelectorAll('.ip')] : [];
 const statebar = document.getElementById('statebar'), sbBtns = statebar ? [...statebar.querySelectorAll('button')] : [];
@@ -543,7 +543,8 @@ function frame(now){
   scrubEls.forEach(s => { const d = prog - 1; const lit = Math.max(0, Math.min(1, (d + .6) / .5)); const n = Math.round(lit * s.spans.length);
     s.spans.forEach((w, i) => { w.classList.toggle('lit', i < n); }); });
   if (hiw){
-    const inH = prog > HIW0 - .5 && prog < HIW1 + .5; hiw.classList.toggle('show', inH); hiw.inert = !inH;
+    const inH = Math.abs(prog - HIW0) < .5; hiw.classList.toggle('show', inH); hiw.inert = !inH;
+    if (why){ const inW = Math.abs(prog - HIW1) < .5; why.classList.toggle('show', inW); why.inert = !inW; stage.classList.toggle('why-on', inW); }
     stage.classList.toggle('hiw-on', inH && Math.abs(prog - HIW0) < .45);
   }
   if (panel){
