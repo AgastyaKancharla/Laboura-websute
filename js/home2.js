@@ -138,3 +138,20 @@ requestAnimationFrame(frame);
       dds.forEach(d => d.textContent = fmt(Math.round(+d.dataset.n * e))); if (p < 1) requestAnimationFrame(tick); };
     requestAnimationFrame(tick); }, 1100);
 })();
+
+/* Why Laboura on phones: grow the text until the table fills the space above the call buttons */
+(() => {
+  const why = document.querySelector('.why'); if (!why) return;
+  const fit = () => {
+    if (innerWidth > 860){ why.style.removeProperty('--k'); return; }
+    const room = innerHeight - why.offsetTop - 18;
+    let lo = .8, hi = 1.8;
+    for (let n = 0; n < 14; n++){ const k = (lo + hi) / 2; why.style.setProperty('--k', k.toFixed(3));
+      if (why.offsetHeight <= room) lo = k; else hi = k; }
+    why.style.setProperty('--k', lo.toFixed(3));
+  };
+  let t; const later = () => { clearTimeout(t); t = setTimeout(fit, 120); };
+  fit(); addEventListener('resize', later); addEventListener('orientationchange', later);
+  if (document.fonts) document.fonts.ready.then(fit);
+  addEventListener('load', fit);
+})();

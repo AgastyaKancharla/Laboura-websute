@@ -217,12 +217,12 @@ if (bp){
   upd();
 }
 
-/* ---------- Businesses: 90 days ---------- */
+/* ---------- Businesses: 60 days ---------- */
 const g2 = $('.bg2');
 if (g2){
   const d = $('#bg2-d'), out = $('.bg2-out', g2);
-  const upd = () => { const v = +d.value; g2.style.setProperty('--d', v); const late = v > 90; g2.classList.toggle('late', late);
-    out.innerHTML = late ? `<b>Day ${v}.</b> <span>Past 90 days. A new hire is charged the normal fee.</span>` : `<b>Day ${v}.</b> <span>Laboura sends a replacement free.</span>`; };
+  const upd = () => { const v = +d.value; g2.style.setProperty('--d', v); const late = v > 60; g2.classList.toggle('late', late);
+    out.innerHTML = late ? `<b>Day ${v}.</b> <span>Past 60 days. A new hire is charged the normal fee.</span>` : `<b>Day ${v}.</b> <span>Laboura sends a replacement free.</span>`; };
   d.addEventListener('input', upd); upd();
 }
 
@@ -376,7 +376,7 @@ if (toc.length){ const secs = toc.map(a => document.getElementById(a.getAttribut
 
 /* refund policy: date checkers */
 const fmtD = d => d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-[['#rc-job', 30, d => `Your 30 days end on <b>${fmtD(d)}</b>. No job offer by then? Call us for your full ₹499.`], ['#rc-biz', 90, d => `Free replacement until <b>${fmtD(d)}</b>. If your hire leaves before then, call us.`]].forEach(([sel, n, msg]) => {
+[['#rc-job', 30, d => `Your 30 days end on <b>${fmtD(d)}</b>. No job offer by then? Call us for your full ₹499.`], ['#rc-biz', 60, d => `Free replacement until <b>${fmtD(d)}</b>. If your hire leaves before then, call us.`]].forEach(([sel, n, msg]) => {
   const inp = $(sel); if (!inp) return; const out = inp.closest('.rc-box').querySelector('.rc-out');
   inp.addEventListener('change', () => { if (!inp.value) return; const d = new Date(inp.value + 'T00:00:00'); d.setDate(d.getDate() + n);
     const left = Math.ceil((d - new Date()) / 864e5); out.innerHTML = msg(d) + (left > 0 ? ` <span>${left} days to go.</span>` : ' <span>That date has passed.</span>'); }); });

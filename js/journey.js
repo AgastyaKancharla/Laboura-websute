@@ -118,7 +118,7 @@ if (sec){
         { draw: x => { x.translate(0, 40); x.scale(.95, .95); drawPerson('stand')(x); x.translate(300, 0); drawPerson('stand')(x); x.translate(300, 0); drawPerson('stand')(x); }, col: 0 },
         { draw: x => { x.beginPath(); x.arc(450, 70, 62, 0, Math.PI * 2); x.fill(); cut(x, () => { x.lineWidth = 18; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath(); x.moveTo(420, 72); x.lineTo(442, 94); x.lineTo(484, 50); x.stroke(); }); }, col: 1 }], n), .96),
       fit(sample(measure([fee, f2], T), th, [{ draw: text([fee], T), col: 0 }, { draw: x => { x.translate(0, T * 1.12); text([f2], T)(x); }, col: 2 }], n), mobile ? 1 : .96),
-      fit(sample(measure(['90 days.', 'Covered.'], T), th, [{ draw: text(['90 days.'], T), col: 2 }, { draw: x => { x.translate(0, T * 1.12); text(['Covered.'], T)(x); }, col: 1 }], n), mobile ? 1 : .96)
+      fit(sample(measure(['60 days.', 'Covered.'], T), th, [{ draw: text(['60 days.'], T), col: 2 }, { draw: x => { x.translate(0, T * 1.12); text(['Covered.'], T)(x); }, col: 1 }], n), mobile ? 1 : .96)
     ];
   }
   function build(){

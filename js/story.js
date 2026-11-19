@@ -210,7 +210,7 @@ function initGL(){
       x.lineCap = 'round'; x.lineWidth = 22; [[40, 150, 120], [20, 240, 90], [50, 330, 110]].forEach(([a, y, l]) => { x.beginPath(); x.moveTo(a, y); x.lineTo(a + l * .55, y); x.stroke(); }); }, // fast: lightning bolt + speed lines
     x => { x.lineWidth = 40; x.lineCap = 'round'; x.beginPath(); x.arc(250, 250, 196, -0.35, Math.PI * 1.65); x.stroke();
       x.beginPath(); x.moveTo(420, 120); x.lineTo(456, 210); x.lineTo(362, 196); x.closePath(); x.fill();
-      x.font = `800 150px ${FONT}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('90', 250, 262); },                                                          // 90-day replacement: loop + 90
+      x.font = `800 150px ${FONT}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('60', 250, 262); },                                                          // 60-day replacement: loop + 90
     x => { x.lineWidth = 40; x.lineCap = 'round'; x.beginPath(); x.arc(250, 250, 196, Math.PI * .2, Math.PI * 1.8); x.stroke();
       x.beginPath(); x.moveTo(448, 300); x.lineTo(470, 196); x.lineTo(380, 250); x.closePath(); x.fill();
       x.font = `800 210px ${FONT}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('₹', 246, 262); },                                                       // full refund: rupee + return arrow
@@ -544,7 +544,7 @@ function frame(now){
     s.spans.forEach((w, i) => { w.classList.toggle('lit', i < n); }); });
   if (hiw){
     const inH = Math.abs(prog - HIW0) < .5; hiw.classList.toggle('show', inH); hiw.inert = !inH;
-    if (why){ const inW = Math.abs(prog - HIW1) < .5; why.classList.toggle('show', inW); why.inert = !inW; stage.classList.toggle('why-on', inW); }
+    if (why){ const inW = Math.abs(prog - HIW1) < .5; why.classList.toggle('show', inW); why.inert = !inW; stage.classList.toggle('why-on', inW); document.documentElement.classList.toggle('why-now', inW); }
     stage.classList.toggle('hiw-on', inH && Math.abs(prog - HIW0) < .45);
   }
   if (panel){
