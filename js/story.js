@@ -5,10 +5,19 @@ const stage = story.querySelector('.stage');
 const caps = [...story.querySelectorAll('.cap')];
 const ticks = [...story.querySelectorAll('.chapters b')];
 const bub1 = document.getElementById('bub1'), bub2 = document.getElementById('bub2');
-const dial = document.getElementById('dial'), dialBtns = dial ? [...dial.querySelectorAll('button')] : [];
+const dialHint = document.getElementById('dial-hint'), dial = document.getElementById('dial'), dialBtns = dial ? [...dial.querySelectorAll('button')] : [];
 const vennEls = { seek: document.getElementById('venn-seek'), biz: document.getElementById('venn-biz'), core: document.getElementById('venn-core') };
 /* scenes: 0 hero sentence, 1 the logo, 2-6 the five promises, 7-11 India state by state, 12-14 how it works, 15 wordmark */
 const SCENES = 15, PROMISE0 = 2, PROMISE1 = 6, INDIA0 = 7, INDIA1 = 11, HIW0 = 12, HIW1 = 14;
+/* scroll stops: 0 hero, 1 logo, 2 the promises (one frame, tap or auto), 3 India (one frame, tap a state), 4-6 how it works, 7 wordmark */
+const STOPS = 7, ROTATE_MS = 3500;
+let pIdx = 0, iK = 0, pStart = performance.now(), pPause = 0, tapped = false;
+const indiaAt = k => INDIA0 + k / 9 * (INDIA1 - INDIA0);
+function toFilm(s){
+  const v = [0, 1, PROMISE0 + pIdx, indiaAt(iK), HIW0, HIW0 + 1, HIW1, SCENES];
+  const k = Math.min(Math.floor(s), STOPS - 1), f = s - k;
+  return s >= STOPS ? SCENES : v[k] + (v[k + 1] - v[k]) * f;
+}
 const hiw = document.getElementById('hiw'), hiwTabs = hiw ? [...hiw.querySelectorAll('[role="tab"]')] : [], hiwPaths = hiw ? [...hiw.querySelectorAll('.hiw-path')] : [];
 let hiwMode = 'job';
 const panel = document.getElementById('india-panel'), ips = panel ? [...panel.querySelectorAll('.ip')] : [];
@@ -16,21 +25,24 @@ const statebar = document.getElementById('statebar'), sbBtns = statebar ? [...st
 stage.classList.remove('intro');
 
 /* scroll position -> story progress, with a short rest on each scene and long, visible transitions */
-function rawProgress(){
+function rawStop(){
   const r = story.getBoundingClientRect(); const span = story.offsetHeight - innerHeight;
-  const raw = Math.min(Math.max(-r.top / span, 0), 1) * SCENES;
-  const k = Math.min(Math.floor(raw), SCENES - 1), f = raw - k;
+  const raw = Math.min(Math.max(-r.top / span, 0), 1) * STOPS;
+  const k = Math.min(Math.floor(raw), STOPS - 1), f = raw - k;
   const g = Math.min(Math.max((f - 0.1) / 0.8, 0), 1);
-  return raw >= SCENES ? SCENES : k + g * g * (3 - 2 * g);
+  return raw >= STOPS ? STOPS : k + g * g * (3 - 2 * g);
 }
-function scrollToScene(k){
-  const kk = Math.floor(k), fr = k - kk; let t = .5; for (let i = 0; i < 30; i++){ const g = t * t * (3 - 2 * t); t += (fr - g) * .5; t = Math.min(Math.max(t, 0), 1); }
-  const raw = fr < .001 ? kk : kk + .1 + .8 * t;
-  const span = story.offsetHeight - innerHeight, y = story.offsetTop + (raw / SCENES) * span + 2;
-  if (window.LB_lenis) window.LB_lenis.scrollTo(y, { duration: 1.6 }); else scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+function rawProgress(){ return toFilm(rawStop()); }
+/* promises: tap a button, or let them turn every few seconds */
+function setPromise(i, byUser){
+  const from = pIdx; if (i === from) return; pIdx = i; pStart = performance.now();
+  if (byUser){ pPause = pStart + 9000; tapped = true; if (dial) dial.classList.add('tapped'); }
+  if (Math.abs(i - from) > 1) shown = PROMISE0 + i - Math.sign(i - from) * .6;
 }
-dialBtns.forEach(b => b.addEventListener('click', () => scrollToScene(+b.dataset.go)));
-sbBtns.forEach(b => b.addEventListener('click', () => scrollToScene(INDIA0 + (+b.dataset.s) / 9 * (INDIA1 - INDIA0))));
+function setState(k){ iK = k; shown = rawProgress(); if (statebar) statebar.classList.add('tapped'); }
+dialBtns.forEach((b, i) => b.addEventListener('click', () => setPromise(i, true)));
+dialBtns.forEach(b => b.addEventListener('mouseenter', () => { pPause = performance.now() + 6000; }));
+sbBtns.forEach(b => b.addEventListener('click', () => { const k = +b.dataset.s; setState(iK === k ? 0 : k); }));
 
 /* ---------- looping hero film ---------- */
 const LOOP = [ [0, 0], [0.4, 0], [2.2, 1], [5.0, 1], [7.0, 2], [9.8, 2], [11.8, 3], [16.0, 3], [17.6, 4] ];
@@ -419,7 +431,7 @@ function initGL(){
       /* India: light the states one by one and glide the camera to the active one */
       const iw = Math.max(0, 1 - Math.max(INDIA0 - prog, prog - INDIA1, 0) / .6);
       const sf = Math.min(Math.max((prog - INDIA0) / (INDIA1 - INDIA0) * 9, 0), 9), act = Math.round(sf);
-      uniforms.uIndia.value = iw; uniforms.uActive.value = act >= 1 && act <= 8 ? act : 99; uniforms.uLitN.value = act >= 9 ? 9 : 0;   // only the state in view is coloured; all 8 light up at the end
+      uniforms.uIndia.value = iw; uniforms.uActive.value = act >= 1 && act <= 8 ? act : 99; uniforms.uLitN.value = (act >= 9 || act === 0) ? 9 : 0;   // only the state in view is coloured; all 8 light up at the end
       let tx0 = 0, ty0 = 0, tz0 = 12;
       if (iw > .5 && act >= 1 && act <= 8 && stateCam[act - 1]){ const c = stateCam[act - 1];
         tz0 = Math.min(11, Math.max(7.4, c[2] * 2.6 / Math.tan(THREE.MathUtils.degToRad(21))));
@@ -449,7 +461,14 @@ function countUp(el){ if (reduce) return;
 let shown = rawProgress(), lastT = performance.now(), last = -1;
 function frame(now){
   const dt = Math.min((now - lastT) / 1000, .1); lastT = now;
-  const target = rawProgress();
+  const stop = rawStop();
+  /* leaving a one-frame stop resets it, so the film never runs through the other promises or states */
+  if (stop < 1.6 && pIdx !== 0){ pIdx = 0; } else if (stop > 2.4 && stop < 2.9 && pIdx !== 4){ pIdx = 4; }
+  if (stop < 2.6 && iK !== 0) iK = 0; else if (stop > 3.4 && iK !== 9) iK = 9;
+  const atP = Math.abs(stop - 2) < .12;
+  if (!atP) pStart = now;
+  else if (!reduce && now > pPause && now - pStart > ROTATE_MS) setPromise((pIdx + 1) % 5, false);
+  const target = toFilm(stop);
   shown += (target - shown) * (reduce ? 1 : 1 - Math.exp(-dt * 7));
   if (Math.abs(target - shown) < .0005) shown = target;
   const prog = shown;
@@ -473,14 +492,17 @@ function frame(now){
     const inI = prog > INDIA0 - .5 && prog < INDIA1 + .5; panel.classList.toggle('show', inI);
     const sf = Math.min(Math.max((prog - INDIA0) / (INDIA1 - INDIA0) * 9, 0), 9), act = Math.round(sf);
     ips.forEach((el, i) => { const on = inI && i === act; if (on && !el.classList.contains('on')) countUp(el); el.classList.toggle('on', on); el.inert = !on; });
-    if (statebar){ statebar.classList.toggle('show', inI && prog > INDIA0 + .2);
-      sbBtns.forEach((b, i) => { b.classList.toggle('on', i + 1 === act); b.classList.toggle('lit', act >= 9); }); }
+    if (statebar){ statebar.classList.toggle('show', inI);
+      sbBtns.forEach(b => { const k = +b.dataset.s; b.classList.toggle('on', k === act); b.classList.toggle('lit', act === 0 || act >= 9); b.setAttribute('aria-pressed', k === act); }); }
   }
   if (dial){
     const vis = prog > PROMISE0 - .6 && prog < PROMISE1 + .6; dial.classList.toggle('show', vis);
+    if (dialHint) dialHint.classList.toggle('show', vis && !tapped);
     const act = Math.min(Math.max(Math.round(prog) - PROMISE0, 0), 4);
-    dialBtns.forEach((b, i) => { b.classList.toggle('on', i === act); b.setAttribute('aria-current', i === act ? 'step' : 'false');
-      const fill = Math.min(Math.max(prog - (PROMISE0 + i) + .5, 0), 1); b.style.setProperty('--fill', fill); });
+    const tf = now < pPause ? 1 : Math.min((now - pStart) / ROTATE_MS, 1);
+    dialBtns.forEach((b, i) => { const on = i === act; if (on && !b.classList.contains('on') && dial.scrollWidth > dial.clientWidth) dial.scrollTo({ left: b.offsetLeft - 40, behavior: 'smooth' });
+      b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'step' : 'false');
+      b.style.setProperty('--fill', on ? tf.toFixed(3) : 0); });
   }
   if (gl){
     const a = gl.anchors(), mid = !gl.wide();
@@ -494,7 +516,7 @@ function frame(now){
     [['seek', vennEls.seek], ['biz', vennEls.biz], ['core', vennEls.core]].forEach(([key, el]) => { if (!el) return;
       el.style.left = a[key][0] + 'px'; el.style.top = a[key][1] + 'px'; el.classList.toggle('on', vOn); el.tabIndex = vOn && key !== 'core' ? 0 : -1; });
   }
-  const tick = Math.round(prog); if (tick !== last){ ticks.forEach((b, i) => b.classList.toggle('on', i === tick)); last = tick; }
+  const tick = Math.round(stop); if (tick !== last){ ticks.forEach((b, i) => b.classList.toggle('on', i === tick)); last = tick; }
   if (gl && story.getBoundingClientRect().bottom > 0) gl.render(prog, intro, now / 1000);
   requestAnimationFrame(frame);
 }

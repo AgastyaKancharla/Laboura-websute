@@ -1790,3 +1790,35 @@ h1,h2,h3,.t1,.t2,.final{font-family:var(--display);font-weight:600;letter-spacin
   .sx-now{font-size:13px}
 }
 @media (prefers-reduced-motion:reduce){.sxc,.sxc-ph img,.sxc-bar i{transition:none}.sxc-open i{animation:none}}
+
+/* ===== Film v2: promises and India are one frame each; tap to change ===== */
+#story{height:760vh}
+.dial .s{display:none}
+.dial button{transition:background .3s,color .3s,box-shadow .3s}
+.dial button:not(.on){box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);color:#222}
+.dial button::after{background:var(--sodium);bottom:6px;height:3px;transition:none}
+.dial button:not(.on)::after{display:none}
+.tap-hint{position:absolute;left:var(--gut);bottom:calc(clamp(40px,6vh,64px) + 66px);z-index:3;margin:0;display:flex;align-items:center;gap:8px;font:600 13px/1 var(--body);color:#555;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s;pointer-events:none}
+.tap-hint::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sodium);animation:tapPulse 1.6s infinite}
+@keyframes tapPulse{0%{box-shadow:0 0 0 0 rgba(255,140,0,.5)}80%{box-shadow:0 0 0 9px rgba(255,140,0,0)}100%{box-shadow:0 0 0 0 rgba(255,140,0,0)}}
+.tap-hint.show{opacity:1;transform:none}
+.statebar .sb-all{color:#0A4FD8}
+.statebar button:not(.on){box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+@media (max-width:860px){
+  .dial{left:12px;right:84px}
+  .dial button span.l{display:none}
+  .dial button span.s,.dial button.on span.s{display:inline}
+  .dial button{padding:0 11px;gap:6px}
+  .tap-hint{left:14px;bottom:84px;font-size:12px}
+  .statebar{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){.tap-hint::before{animation:none}}
+@media (max-width:860px){.ip{bottom:162px}}
+@media (max-width:860px){
+  .dial{left:12px;right:12px;bottom:150px;gap:4px;padding:4px;overflow:visible}
+  .dial button{flex:1 1 0;min-width:0;justify-content:center;padding:0 4px;min-height:40px;font-size:12px}
+  .dial button i{display:none}
+  .dial button::after{left:10px;right:10px;bottom:5px}
+  .tap-hint{bottom:206px}
+  .cap-pr{bottom:232px}
+}
