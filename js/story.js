@@ -16,7 +16,11 @@ const indiaAt = k => INDIA0 + k / 9 * (INDIA1 - INDIA0);
 function toFilm(s){
   const v = [0, 1, PROMISE0 + pIdx, indiaAt(iK), HIW0, HIW0 + 1, HIW1, SCENES];
   const k = Math.min(Math.floor(s), STOPS - 1), f = s - k;
-  return s >= STOPS ? SCENES : v[k] + (v[k + 1] - v[k]) * f;
+  if (s >= STOPS) return SCENES;
+  const A = v[k], B = v[k + 1];
+  if (Math.abs(B - A) <= 1.0001) return A + (B - A) * f;
+  /* far apart (e.g. the 3rd promise to the map): leave the current frame, then arrive at the next one, never passing through the frames between */
+  const sg = Math.sign(B - A); return f < .5 ? A + sg * f : B - sg * (1 - f);
 }
 const hiw = document.getElementById('hiw'), hiwTabs = hiw ? [...hiw.querySelectorAll('[role="tab"]')] : [], hiwPaths = hiw ? [...hiw.querySelectorAll('.hiw-path')] : [];
 let hiwMode = 'job';
@@ -33,6 +37,27 @@ function rawStop(){
   return raw >= STOPS ? STOPS : k + g * g * (3 - 2 * g);
 }
 function rawProgress(){ return toFilm(rawStop()); }
+/* one scroll = one frame: when scrolling stops inside the film, settle on the next frame in that direction */
+const stopY = k => story.offsetTop + (k / STOPS) * (story.offsetHeight - innerHeight) + 2;
+const linStop = () => { const r = story.getBoundingClientRect(); return Math.min(Math.max(-r.top / (story.offsetHeight - innerHeight), 0), 1) * STOPS; };
+let settled = Math.round(linStop()), snapT = 0, snapping = false, touching = false;
+function snap(){
+  if (touching || snapping) return;
+  const r = story.getBoundingClientRect(); if (r.top > 1 || r.bottom < innerHeight - 1) { settled = Math.round(linStop()); return; }
+  const raw = linStop(); if (raw >= STOPS - .001){ settled = STOPS; return; }
+  let to = settled; if (raw > settled + .1) to = settled + 1; else if (raw < settled - .1) to = settled - 1;
+  to = Math.min(Math.max(to, 0), STOPS);
+  if (Math.abs(raw - to) < .01){ settled = to; return; }
+  settled = to; snapping = true;
+  const done = () => { snapping = false; };
+  if (window.LB_lenis) window.LB_lenis.scrollTo(stopY(to), { duration: .9, onComplete: done }); else { scrollTo({ top: stopY(to), behavior: reduce ? 'auto' : 'smooth' }); setTimeout(done, 700); }
+  setTimeout(done, 1400);
+}
+if (!reduce){
+  addEventListener('scroll', () => { clearTimeout(snapT); snapT = setTimeout(snap, 160); }, { passive: true });
+  addEventListener('touchstart', () => { touching = true; }, { passive: true });
+  addEventListener('touchend', () => { touching = false; clearTimeout(snapT); snapT = setTimeout(snap, 220); }, { passive: true });
+}
 /* promises: tap a button, or let them turn every few seconds */
 function setPromise(i, byUser){
   const from = pIdx; if (i === from) return; pIdx = i; pStart = performance.now();
@@ -463,12 +488,13 @@ function frame(now){
   const dt = Math.min((now - lastT) / 1000, .1); lastT = now;
   const stop = rawStop();
   /* leaving a one-frame stop resets it, so the film never runs through the other promises or states */
-  if (stop < 1.6 && pIdx !== 0){ pIdx = 0; } else if (stop > 2.4 && stop < 2.9 && pIdx !== 4){ pIdx = 4; }
-  if (stop < 2.6 && iK !== 0) iK = 0; else if (stop > 3.4 && iK !== 9) iK = 9;
+  if (stop < 1.05 && pIdx !== 0) pIdx = 0;
+  if ((stop < 2.05 || stop > 3.95) && iK !== 0) iK = 0;
   const atP = Math.abs(stop - 2) < .12;
   if (!atP) pStart = now;
   else if (!reduce && now > pPause && now - pStart > ROTATE_MS) setPromise((pIdx + 1) % 5, false);
   const target = toFilm(stop);
+  if (Math.abs(target - shown) > 1.2) shown = target;
   shown += (target - shown) * (reduce ? 1 : 1 - Math.exp(-dt * 7));
   if (Math.abs(target - shown) < .0005) shown = target;
   const prog = shown;

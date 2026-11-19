@@ -1822,3 +1822,8 @@ h1,h2,h3,.t1,.t2,.final{font-family:var(--display);font-weight:600;letter-spacin
   .tap-hint{bottom:206px}
   .cap-pr{bottom:232px}
 }
+@media (max-width:860px){
+  .dial{left:16px;right:16px;gap:3px}
+  .dial button{font-size:12px;min-height:38px;padding:0 2px}
+  .tap-hint{left:22px}
+}
