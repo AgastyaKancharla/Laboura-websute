@@ -131,6 +131,7 @@ function initGL(){
   const rr = (x, X, Y, W, H, R) => { x.beginPath(); if (x.roundRect) x.roundRect(X, Y, W, H, R); else x.rect(X, Y, W, H); x.fill(); };
   const cut = (x, fn) => { x.globalCompositeOperation = 'destination-out'; fn(); x.globalCompositeOperation = 'source-over'; };
   const FONT = '"Unbounded","Arial Black",Arial,sans-serif';
+  const TFONT = '"Host Grotesk","Helvetica Neue",Arial,sans-serif';   // tagline: clear letters (a real j) when drawn in dots
 
   /* ---- the film's drawings ---- */
   const drawPerson = (variant) => x => {
@@ -164,13 +165,13 @@ function initGL(){
   };
   function textCanvas(lines){
     const cw = 2000, m = document.createElement('canvas').getContext('2d');
-    let fs = 300; m.font = `800 ${fs}px ${FONT}`;
+    let fs = 300; m.font = `800 ${fs}px ${TFONT}`;
     const widths = lines.map(l => l.reduce((w, seg) => w + m.measureText(seg.t).width, 0));
     fs = Math.floor(fs * Math.min(1, (cw * .97) / Math.max(...widths)));
     const lh = fs * 1.16, ch = Math.ceil(lines.length * lh + fs * .3);
-    const drawGroup = g => x => { x.font = `800 ${fs}px ${FONT}`;
+    const drawGroup = g => x => { x.font = `800 ${fs}px ${TFONT}`; x.lineJoin = 'round'; x.lineWidth = fs * .035;
       lines.forEach((l, li) => { let cx = 6; const y = fs * 1.0 + li * lh;
-        l.forEach(seg => { m.font = x.font; if (seg.g === g) x.fillText(seg.t, cx, y); cx += m.measureText(seg.t).width; }); }); };
+        l.forEach(seg => { m.font = x.font; if (seg.g === g){ x.fillText(seg.t, cx, y); x.strokeText(seg.t, cx, y); } cx += m.measureText(seg.t).width; }); }); };
     return { cw, ch, drawGroup };
   }
 
@@ -313,7 +314,7 @@ function initGL(){
     const T = textCanvas(wide ? [[{ t: 'One missed call.', g: 0 }], [{ t: 'Get a job.', g: 1 }, { t: '  ', g: -1 }, { t: 'Hire staff.', g: 2 }]]
                               : [[{ t: 'One missed', g: 0 }], [{ t: 'call.', g: 0 }], [{ t: 'Get a job.', g: 1 }], [{ t: 'Hire staff.', g: 2 }]]);
     const tAsp = T.ch / T.cw, TW = wide ? Math.min(W * 1.75, H * .62 / tAsp) : Math.min(W * 1.84, H * .64 / tAsp);
-    const txL = -W + (wide ? W * .1 : W * .08), txB = (wide ? H * .74 : H * .8) - tAsp * TW;
+    const txL = -W + (wide ? W * .1 : W * .08), txB = (wide ? H * .79 : H * .8) - tAsp * TW;
     const tx = [txt0, txt1, txt2].map((idx, g) => place(A.p0, idx, gridSample(T.cw, T.ch, T.drawGroup(g), idx.length), txL + TW / 2, txB, TW, tAsp));
     dotFilm[3] = Math.max(...tx); dotScene[0] = dotFilm[3];
 
@@ -415,7 +416,7 @@ function initGL(){
   scene.add(new THREE.Points(geo, pmat)); scene.add(new THREE.LineSegments(lgeo, lmat));
   geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e4); lgeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e4);
   layout();
-  if (document.fonts && document.fonts.load) document.fonts.load('800 40px "Unbounded"').then(() => layout()).catch(() => {});
+  if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('800 40px "Unbounded"'), document.fonts.load('800 40px "Host Grotesk"')]).then(() => layout()).catch(() => {});
   let lw = innerWidth, lh = innerHeight;
   addEventListener('resize', () => { if (Math.abs(innerWidth - lw) > 40 || Math.abs(innerHeight - lh) > 160){ lw = innerWidth; lh = innerHeight; layout(); } else { renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); } });
   const mouse = { x: 0, y: 0, tx: 0, ty: 0, wx: 99, wy: 99, on: false };

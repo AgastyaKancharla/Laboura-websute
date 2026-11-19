@@ -1827,3 +1827,18 @@ h1,h2,h3,.t1,.t2,.final{font-family:var(--display);font-weight:600;letter-spacin
   .dial button{font-size:12px;min-height:38px;padding:0 2px}
   .tap-hint{left:22px}
 }
+
+/* ===== Hero: three live numbers under the line ===== */
+.hero-stats{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:0;margin:clamp(18px,2vw,26px) 0 0}
+.hero-stats div{padding:0 clamp(16px,2vw,28px);border-left:1px solid rgba(0,0,0,.12)}
+.hero-stats div:first-child{padding-left:0;border-left:0}
+.hero-stats dd{margin:0;font:700 clamp(26px,2.6vw,40px)/1 var(--display);letter-spacing:-.04em;color:#000;font-variant-numeric:tabular-nums}
+.hero-stats div:nth-child(1) dd{color:#E06A00}
+.hero-stats div:nth-child(3) dd{color:#0A4FD8}
+.hero-stats dt{margin-top:6px;font:500 14px/1.3 var(--body);color:#555;max-width:16ch}
+@media (max-width:860px){
+  .hero-stats{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:16px}
+  .hero-stats div{padding:0 10px}
+  .hero-stats dd{font-size:22px}
+  .hero-stats dt{font-size:12px}
+}

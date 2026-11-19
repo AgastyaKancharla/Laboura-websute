@@ -126,3 +126,15 @@ requestAnimationFrame(frame);
   addEventListener('resize', () => { const i = cur; cur = -1; wrap.scrollLeft = i * wrap.clientWidth; set(i); });
   set(0);
 })();
+
+/* Hero numbers count up once the hero text has risen */
+(function(){
+  const dds = [...document.querySelectorAll('.hero-stats dd[data-n]')]; if (!dds.length) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const fmt = n => n.toLocaleString('en-IN');
+  dds.forEach(d => d.textContent = '0');
+  setTimeout(() => { const t0 = performance.now();
+    const tick = t => { const p = Math.min((t - t0) / 1600, 1), e = 1 - Math.pow(1 - p, 3);
+      dds.forEach(d => d.textContent = fmt(Math.round(+d.dataset.n * e))); if (p < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick); }, 1100);
+})();
