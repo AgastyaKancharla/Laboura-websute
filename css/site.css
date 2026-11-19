@@ -1900,3 +1900,13 @@ h1,h2,h3,.t1,.t2,.final{font-family:var(--display);font-weight:600;letter-spacin
 }
 @media (max-width:860px){.hiw-steps li:nth-last-child(-n+2) p{padding-right:46px}}
 @media (max-width:380px){.hiw .hiw-title{font-size:20.5px}.hiw-steps p,.hiw-steps li.on p{font-size:12px}.hiw{top:80px}}
+@media (max-width:860px){
+  .hiw{top:auto;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  .stage.hiw-on #gl{opacity:1}
+}
+@media (max-width:860px) and (max-height:740px){
+  .hiw-q{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0}
+  .hiw-toggle{margin-bottom:8px}.hiw-toggle button{min-height:36px}
+  .hiw-steps li,.hiw-steps li:not(.on){padding:2px 0}
+  .hiw-cta{margin-top:8px}.hiw-cta .btn{min-height:40px}
+}

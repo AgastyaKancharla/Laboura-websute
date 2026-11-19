@@ -294,7 +294,12 @@ function initGL(){
   const dotFilm = { 1: .05, 2: .05, 3: .05 }, dotScene = new Float32Array(SCENES + 1), stateCam = [];
   let hiwGeom = null;
   function buildHIW(){
-    if (!hiwGeom) return; const G = hiwGeom, base = G.cy - G.sz / 2;
+    if (!hiwGeom) return; const G = hiwGeom;
+    /* phones: the steps sit at the bottom; the dot picture fills the gap between the header and the steps */
+    if (!G.wide && hiw){ const top = innerHeight - (parseFloat(getComputedStyle(hiw).bottom) || 16) - hiw.offsetHeight;
+      const bt = G.H - 96 * G.pxW, bb = G.H - Math.max(top - 14, 140) * G.pxW;
+      G.cy = (bt + bb) / 2; G.sz = Math.max(Math.min(G.W * 1.3, (bt - bb) * .96), G.H * .12); }
+    const base = G.cy - G.sz / 2;
     const one = (k, draw) => { const g = gridSample(500, 500, draw, ALL.length); G.place(SC[k], ALL, g, G.cx, base, G.sz, 1); dotScene[k] = g.step * G.sz; };
     one(HIW0, H_PHONE);
     one(HIW0 + 1, hiwMode === 'job' ? H_CARD : H_CLIP);
@@ -388,7 +393,7 @@ function initGL(){
         dotScene[15] = place(SC[15], ALL, g, 0, cy - asp * ws / 2, ws, asp);
       } else ALL.forEach((i, j) => { const p = pick(wmPts, j, 5); put(SC[15], i, p[0] * ws, cy + p[1] * ws, 0); });
     }
-    hiwGeom = { wide, place, put, cx: wide ? W * .58 : 0, cy: wide ? 0 : H * .5, sz: wide ? H * 1.1 : Math.min(W * 1.2, H * .56) };
+    hiwGeom = { wide, place, put, W, H, pxW: 2 * H / h, cx: wide ? W * .58 : 0, cy: wide ? 0 : H * .5, sz: wide ? H * 1.1 : Math.min(W * 1.2, H * .56) };
     buildHIW();
     FILM.forEach(n => { geo.attributes[n].needsUpdate = true; copyLines(n, A[n]); });
     pairK = -1; setPair(0);
@@ -455,7 +460,7 @@ function initGL(){
   const tmp = new THREE.Vector3();
   function toScreen(v){ tmp.copy(v).project(camera); return [(tmp.x * .5 + .5) * innerWidth, (-tmp.y * .5 + .5) * innerHeight]; }
   return {
-    setMode: m => { hiwMode = m; buildHIW(); },
+    setMode: m => { hiwMode = m; buildHIW(); pairK = -1; },
     anchors: () => ({ h1: toScreen(anchors.head1), h2: toScreen(anchors.head2), seek: toScreen(anchors.vSeek), biz: toScreen(anchors.vBiz), core: toScreen(anchors.vCore) }),
     wide: () => wideNow,
     render(prog, intro, t){
