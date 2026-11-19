@@ -321,7 +321,7 @@ function initGL(){
     const w = innerWidth, h = innerHeight, asp = w / h;
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, small ? 2 : 1.75));
     renderer.setSize(w, h, false); camera.aspect = asp; camera.updateProjectionMatrix();
-    H = Math.tan(THREE.MathUtils.degToRad(21)) * 12; W = H * asp; const wide = asp > 1.05; wideNow = wide;
+    H = Math.tan(THREE.MathUtils.degToRad(21)) * 12; W = H * asp; const wide = asp > 1.05 && (w > 860 || asp > 1.3); wideNow = wide;
     pxPerWorld = h / (2 * H); uniforms.uMR.value = wide ? H * .28 : W * .4;
     const sx = wide ? W * 0.34 : 0, sy = wide ? 0.05 * H : H * 0.28;
     const sS = wide ? H * 1.5 : Math.min(W * 1.6, H * 0.95);
@@ -352,9 +352,16 @@ function initGL(){
     const tx = [txt0, txt1, txt2].map((idx, g) => place(A.p0, idx, gridSample(T.cw, T.ch, T.drawGroup(g), idx.length), txL + TW / 2, txB, TW, tAsp));
     dotFilm[3] = Math.max(...tx); dotScene[0] = dotFilm[3];
 
+    /* phones and tablets held upright: every picture fits the free space between the header and its own text */
+    const stageEl = capEl ? capEl.offsetParent : null;
+    const topIn = el => { let t = 0, e = el; while (e && e !== stageEl && e !== document.body){ t += e.offsetTop; e = e.offsetParent; } return t; };
+    const bandOf = sel => { const els = [...story.querySelectorAll(sel)]; if (!els.length || !stageEl) return null;
+      const tp = Math.min(...els.map(topIn)), bt = H - 84 * pxW, bb = H - Math.max(tp - 12, 140) * pxW; return [bt, bb, (bt + bb) / 2, Math.max(bt - bb, H * .2)]; };
+    const bLogo = wide ? null : bandOf('.cap-what'), bPr = wide ? null : bandOf('.cap-pr'), bIn = wide ? null : bandOf('#india-panel .ip-intro');
     /* scene 1: the Laboura logo drawn in dots, each dot in the logo's own colour */
     { const L = window.LB_LOGO ? (small ? LB_LOGO.small : LB_LOGO.big) : null;
-      const vc = wide ? [W * .4, -H * .02] : [0, H * .4], vs = wide ? H * 1.3 / (L ? L.aspect : 1) : Math.min(W * 1.5, H * .8);
+      const la = L ? L.aspect : 1;
+      const vc = wide ? [W * .4, -H * .02] : [0, bLogo ? bLogo[2] : H * .4], vs = wide ? H * 1.3 / la : Math.min(W * 1.5, H * .8, bLogo ? bLogo[3] * .94 / la : 99);
       if (L){ const n = L.p.length / 5;
         ALL.forEach((i, j) => { const q = (j % n) * 5, o = i * 3;
           put(SC[1], i, vc[0] + L.p[q] * vs, vc[1] + L.p[q + 1] * vs, j >= n ? -.01 : 0);
@@ -364,12 +371,12 @@ function initGL(){
       } else { ALL.forEach(i => put(SC[1], i, vc[0] + gauss() * vs * .2, vc[1] + gauss() * vs * .2, 0)); dotScene[1] = 0; }
       anchors.vSeek.set(99, 99, 0); anchors.vBiz.set(99, 99, 0); anchors.vCore.set(99, 99, 0); }
     /* scenes 2-6: the five promise icons */
-    const ic = wide ? [W * .42, H * .02] : [0, H * .42], isz = wide ? H * 1.25 : Math.min(W * 1.5, H * .7);
+    const ic = wide ? [W * .42, H * .02] : [0, bPr ? bPr[2] : H * .42], isz = wide ? H * 1.25 : Math.min(W * 1.5, H * .7, bPr ? bPr[3] * .94 : 99);
     ICONS.forEach((draw, j) => { const g = gridSample(500, 500, draw, ALL.length); place(SC[PROMISE0 + j], ALL, g, ic[0], ic[1] - isz / 2, isz, 1); dotScene[PROMISE0 + j] = g.step * isz; });
 
     /* scenes 7-11: India, one map held while the states light up one by one */
     const IM = window.LB_INDIA ? (small ? LB_INDIA.small : LB_INDIA.big) : null;
-    const mc = wide ? [W * .36, -H * .02] : [0, H * .4], ms = wide ? H * 1.85 / (IM ? IM.aspect : 1) : Math.min(W * 1.7, H * .86 / (IM ? IM.aspect : 1));
+    const mc = wide ? [W * .36, -H * .02] : [0, bIn ? bIn[2] : H * .4], ms = wide ? H * 1.85 / (IM ? IM.aspect : 1) : Math.min(W * 1.7, H * .86 / (IM ? IM.aspect : 1), bIn ? bIn[3] * .96 / (IM ? IM.aspect : 1) : 99);
     stateCam.length = 0;
     if (IM){ const n = IM.p.length / 3;
       ALL.forEach((i, j) => { const q = (j % n) * 3; const x = mc[0] + IM.p[q] * ms, y = mc[1] + IM.p[q + 1] * ms;

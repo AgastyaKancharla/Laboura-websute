@@ -155,3 +155,20 @@ requestAnimationFrame(frame);
   if (document.fonts) document.fonts.ready.then(fit);
   addEventListener('load', fit);
 })();
+
+/* Laptops with short screens: shrink the steps and Why panels so they sit fully between the header and the bottom edge */
+(() => {
+  const els = ['.hiw', '.why'].map(s => document.querySelector(s)).filter(Boolean); if (!els.length) return;
+  const fit = () => {
+    const phoneCss = innerWidth <= 860 || innerWidth / innerHeight <= 1.05 || innerHeight <= 500;
+    els.forEach(el => {
+      if (phoneCss){ el.style.removeProperty('--z'); el.style.removeProperty('top'); return; }
+      el.style.setProperty('--z', '1');
+      const top = 88, band = innerHeight - top - 22, h = el.offsetHeight;
+      el.style.setProperty('--z', Math.min(1, band / h).toFixed(3));
+      el.style.top = (top + band / 2) + 'px';
+    });
+  };
+  let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(fit, 120); });
+  fit(); addEventListener('load', fit); if (document.fonts) document.fonts.ready.then(fit);
+})();
