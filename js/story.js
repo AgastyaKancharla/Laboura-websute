@@ -37,27 +37,53 @@ function rawStop(){
   return raw >= STOPS ? STOPS : k + g * g * (3 - 2 * g);
 }
 function rawProgress(){ return toFilm(rawStop()); }
-/* one scroll = one frame: when scrolling stops inside the film, settle on the next frame in that direction */
-const stopY = k => story.offsetTop + (k / STOPS) * (story.offsetHeight - innerHeight) + 2;
+/* one gesture = one frame. Inside the film, a wheel flick or a finger swipe moves exactly one frame;
+   at the last frame the page scrolls on normally. */
+const stopY = k => story.offsetTop + (k / STOPS) * (story.offsetHeight - innerHeight) + 1;
 const linStop = () => { const r = story.getBoundingClientRect(); return Math.min(Math.max(-r.top / (story.offsetHeight - innerHeight), 0), 1) * STOPS; };
-let settled = Math.round(linStop()), snapT = 0, snapping = false, touching = false;
-function snap(){
-  if (touching || snapping) return;
-  const r = story.getBoundingClientRect(); if (r.top > 1 || r.bottom < innerHeight - 1) { settled = Math.round(linStop()); return; }
-  const raw = linStop(); if (raw >= STOPS - .001){ settled = STOPS; return; }
-  let to = settled; if (raw > settled + .1) to = settled + 1; else if (raw < settled - .1) to = settled - 1;
-  to = Math.min(Math.max(to, 0), STOPS);
-  if (Math.abs(raw - to) < .01){ settled = to; return; }
-  settled = to; snapping = true;
-  const done = () => { snapping = false; };
-  if (window.LB_lenis) window.LB_lenis.scrollTo(stopY(to), { duration: .9, onComplete: done }); else { scrollTo({ top: stopY(to), behavior: reduce ? 'auto' : 'smooth' }); setTimeout(done, 700); }
-  setTimeout(done, 1400);
+const engaged = () => { const r = story.getBoundingClientRect(); return r.top <= 2 && r.bottom >= innerHeight - 2; };
+let moving = false, moveEnd = 0, cur = Math.round(linStop());
+function goStop(t){
+  t = Math.min(Math.max(t, 0), STOPS); cur = t; moving = true;
+  const y = stopY(t), done = () => { moving = false; moveEnd = performance.now(); };
+  if (window.LB_lenis) window.LB_lenis.scrollTo(y, { duration: 1.05, lock: true, force: true, onComplete: done });
+  else { scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' }); setTimeout(done, 750); }
+  setTimeout(() => { if (moving) done(); }, 1500);
 }
-if (!reduce){
-  addEventListener('scroll', () => { clearTimeout(snapT); snapT = setTimeout(snap, 160); }, { passive: true });
-  addEventListener('touchstart', () => { touching = true; }, { passive: true });
-  addEventListener('touchend', () => { touching = false; clearTimeout(snapT); snapT = setTimeout(snap, 220); }, { passive: true });
-}
+/* wheel: take over only while the film fills the screen, and only one move per flick (trackpads keep sending events) */
+let wheelQuiet = 0, wheelUsed = false, wheelAbs = 0;
+addEventListener('wheel', e => {
+  if (!engaged() || e.ctrlKey) return;
+  const dir = e.deltaY > 0 ? 1 : e.deltaY < 0 ? -1 : 0; if (!dir) return;
+  const at = Math.round(linStop());
+  if ((dir > 0 && at >= STOPS && !moving) || (dir < 0 && at <= 0 && !moving)) return;   // leave the film normally
+  e.preventDefault(); e.stopImmediatePropagation();
+  const now = performance.now(), abs = Math.abs(e.deltaY);
+  /* a new flick: a pause in the events, or the push getting stronger again (trackpad inertia only fades) */
+  if (now - wheelQuiet > 350 || (abs > wheelAbs * 1.5 + 2 && now - moveEnd > 250)) wheelUsed = false;
+  wheelQuiet = now; wheelAbs = abs;
+  if (moving || wheelUsed || now - moveEnd < 150 || abs < 4) return;
+  wheelUsed = true; goStop(at + dir);
+}, { capture: true, passive: false });
+/* touch: a swipe inside the film moves one frame, the page does not drift */
+let ty0 = 0, tDir = 0, tNative = false, tStart = false;
+addEventListener('touchstart', e => { tStart = engaged(); ty0 = e.touches[0].clientY; tDir = 0; tNative = false; }, { passive: true });
+addEventListener('touchmove', e => {
+  if (!tStart) return;
+  const dy = ty0 - e.touches[0].clientY;
+  if (!tDir && Math.abs(dy) > 6){ tDir = dy > 0 ? 1 : -1; const at = Math.round(linStop()); tNative = (tDir > 0 && at >= STOPS) || (tDir < 0 && at <= 0); }
+  if (tDir && !tNative && e.cancelable) e.preventDefault();
+}, { passive: false });
+addEventListener('touchend', e => {
+  if (!tStart || !tDir || tNative) return;
+  const dy = ty0 - (e.changedTouches[0] ? e.changedTouches[0].clientY : ty0);
+  if (Math.abs(dy) > 28 && !moving) goStop(Math.round(linStop()) + tDir);
+}, { passive: true });
+/* keyboard and scrollbar: when scrolling stops halfway inside the film, settle on the nearest frame */
+let idleT = 0;
+addEventListener('scroll', () => { clearTimeout(idleT); idleT = setTimeout(() => {
+  if (moving || !engaged()) return; const raw = linStop(), n = Math.round(raw);
+  if (Math.abs(raw - n) > .02) goStop(n); }, 260); }, { passive: true });
 /* promises: tap a button, or let them turn every few seconds */
 function setPromise(i, byUser){
   const from = pIdx; if (i === from) return; pIdx = i; pStart = performance.now();

@@ -1842,3 +1842,15 @@ h1,h2,h3,.t1,.t2,.final{font-family:var(--display);font-weight:600;letter-spacin
   .hero-stats dd{font-size:22px}
   .hero-stats dt{font-size:12px}
 }
+
+/* ===== Less empty space: content sits on the bottom of the screen; the floating buttons do not reserve space ===== */
+@media (max-width:860px){
+  .hero-cap{bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+  .hero-stats{margin-right:62px}
+  .fab{right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));gap:8px}
+  .fab a{width:48px;height:48px}.fab svg{width:22px;height:22px}
+  .sx,.vx,.fq,.ix .sec-pad,.jw,.jr,.jl,.bp,.bg2,.br,.bn,.as,.an,.ag,.fd,.fg,.fb,.jt,.ad,.af,.at,.ap,.cw,.cl,.spk,.ss,.st2,.sgx,.sga,.fc2,.fv,.fr,.fl2,.rw,.rj,.cv,.co,.sgt{padding-top:64px;padding-bottom:52px}
+  .fc{padding-top:72px;padding-bottom:72px}
+  .sx{padding-bottom:40px}
+}
+@media (max-width:860px){.hero-stats{margin-right:54px}.hero-stats dt{font-size:11.5px}}

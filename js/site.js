@@ -5,7 +5,7 @@ const hdr = document.querySelector('.hdr');
 
 /* smooth scroll */
 let lenis = null;
-if (!reduce && window.Lenis){ try { lenis = new Lenis({ lerp: 0.07, smoothWheel: true, wheelMultiplier: 0.9, touchMultiplier: 1.2 }); } catch(e){ lenis = null; } }
+if (!reduce && window.Lenis){ try { lenis = new Lenis({ lerp: 0.1, smoothWheel: true, wheelMultiplier: 1, touchMultiplier: 1 }); } catch(e){ lenis = null; } }
 window.LB_lenis = lenis;
 document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
   const id = a.getAttribute('href'); if (id.length < 2) return; const t = document.querySelector(id); if (!t) return;
