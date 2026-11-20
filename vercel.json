@@ -20,5 +20,29 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.laboura.com"
+        }
+      ],
+      "destination": "https://www.laboura.in/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "laboura.com"
+        }
+      ],
+      "destination": "https://www.laboura.in/:path*",
+      "permanent": true
+    }
   ]
 }
