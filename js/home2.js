@@ -173,21 +173,80 @@ requestAnimationFrame(frame);
   fit(); addEventListener('load', fit); if (document.fonts) document.fonts.ready.then(fit);
 })();
 
-/* Jobs by sector: "I want a job" / "I need staff" switch. Each job card opens WhatsApp with a ready message. */
+/* Jobs by sector: "I want a job" / "I need staff" switch.
+   Tapping a job opens a small panel with three ways to start: missed call, WhatsApp (message ready), the app. */
 (() => {
   const sec = document.getElementById('sectors'); if (!sec) return;
   const WA = 'https://wa.me/91XXXXXXXXXX?text=';
   const btns = [...sec.querySelectorAll('.sx-mode button')], cards = [...sec.querySelectorAll('.sxc')];
+  const jp = document.getElementById('jp');
+  if (jp) document.body.appendChild(jp);  /* keep the panel above everything, whatever its parent does */
   const msg = (mode, role) => mode === 'staff'
-    ? `Hi Laboura, I need staff for my business.\nJob: ${role}\nHow many people: \nMy area: `
-    : `Hi Laboura, I am looking for a job.\nJob: ${role}\nMy area: `;
-  const setMode = mode => {
-    sec.dataset.mode = mode;
-    btns.forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === mode ? 'true' : 'false'));
-    cards.forEach(c => { const r = c.querySelector('.sxc-role'); if (r) c.href = WA + encodeURIComponent(msg(mode, r.textContent.trim())); });
+    ? `Hi Laboura, I need staff.\nJob: ${role}\nHow many people: \nBusiness name: \nArea: `
+    : `Hi Laboura, I want a job.\nJob: ${role}\nMy name: \nMy area: \nExperience (years): `;
+  const roleOf = c => (c.querySelector('.sxc-role') || {}).textContent.trim();
+  let mode = 'job';
+  const setMode = m => {
+    mode = m; sec.dataset.mode = m;
+    btns.forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === m ? 'true' : 'false'));
+    cards.forEach(c => {
+      c.href = WA + encodeURIComponent(msg(m, roleOf(c)));
+      const g = c.querySelector('.sxc-go'); if (g) g.textContent = m === 'staff' ? 'Hire for this job' : 'Get this job';
+    });
   };
   btns.forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
   setMode('job');
+
+  /* the panel */
+  let lastCard = null;
+  const close = () => {
+    if (!jp || jp.hidden) return;
+    jp.classList.remove('on');
+    setTimeout(() => { jp.hidden = true; }, 260);
+    document.documentElement.classList.remove('jp-open');
+    if (window.LB_lenis) LB_lenis.start();
+    if (lastCard) lastCard.focus({ preventScroll: true });
+  };
+  const open = c => {
+    if (!jp) return false;
+    lastCard = c;
+    const role = roleOf(c), img = c.querySelector('img'), pay = c.querySelector('.sxc-pay');
+    jp.querySelector('.jp-t').textContent = role;
+    jp.querySelector('.jp-pay').textContent = pay ? pay.textContent.trim() : '';
+    const pi = jp.querySelector('.jp-img'); if (img){ pi.src = img.currentSrc || img.src; pi.style.objectPosition = img.style.objectPosition; }
+    const staff = mode === 'staff';
+    jp.classList.toggle('staff', staff);
+    jp.querySelector('.jp-k').textContent = staff ? 'Hire for this job' : 'Get this job';
+    jp.querySelector('.jp-ask').textContent = staff ? 'How do you want to send your request?' : 'How do you want to start?';
+    jp.querySelector('.jp-wa').href = WA + encodeURIComponent(msg(mode, role));
+    jp.querySelector('.jp-call small').textContent = staff ? 'Free. Our team calls you back.' : 'Free. We call you back.';
+    const app = jp.querySelector('.jp-app');
+    app.querySelector('svg').innerHTML = staff ? '<path d="M7 3h7l4 4v14H7z"/><path d="M10 12h5M10 16h5"/>' : '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>';
+    if (staff){ app.href = 'company-enquiry.html'; app.querySelector('b').textContent = 'Fill the hiring form'; app.querySelector('small').textContent = 'For many people or many jobs at once.'; }
+    else { app.href = '#'; app.querySelector('b').textContent = 'Download the Laboura app'; app.querySelector('small').textContent = 'Register yourself in 2 minutes.'; }
+    jp.hidden = false; void jp.offsetWidth; jp.classList.add('on');
+    document.documentElement.classList.add('jp-open');
+    if (window.LB_lenis) LB_lenis.stop();
+    jp.querySelector('.jp-card').focus({ preventScroll: true });
+    return true;
+  };
+  cards.forEach(c => c.addEventListener('click', e => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    if (open(c)) e.preventDefault();
+  }));
+  if (jp){
+    jp.querySelectorAll('[data-close]').forEach(x => x.addEventListener('click', close));
+    addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    jp.querySelectorAll('.jp-w').forEach(a => a.addEventListener('click', () => setTimeout(close, 400)));
+    /* keep keyboard focus inside the panel */
+    jp.addEventListener('keydown', e => {
+      if (e.key !== 'Tab') return;
+      const f = [...jp.querySelectorAll('button,a[href]')]; const a = f[0], z = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); }
+      else if (!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); }
+    });
+  }
+
   /* hero buttons jump straight to the jobs, in the right mode */
   document.querySelectorAll('a[data-go]').forEach(a => a.addEventListener('click', e => {
     e.preventDefault(); setMode(a.dataset.go);
