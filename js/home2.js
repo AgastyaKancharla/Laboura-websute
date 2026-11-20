@@ -172,3 +172,27 @@ requestAnimationFrame(frame);
   let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(fit, 120); });
   fit(); addEventListener('load', fit); if (document.fonts) document.fonts.ready.then(fit);
 })();
+
+/* Jobs by sector: "I want a job" / "I need staff" switch. Each job card opens WhatsApp with a ready message. */
+(() => {
+  const sec = document.getElementById('sectors'); if (!sec) return;
+  const WA = 'https://wa.me/91XXXXXXXXXX?text=';
+  const btns = [...sec.querySelectorAll('.sx-mode button')], cards = [...sec.querySelectorAll('.sxc')];
+  const msg = (mode, role) => mode === 'staff'
+    ? `Hi Laboura, I need staff for my business.\nJob: ${role}\nHow many people: \nMy area: `
+    : `Hi Laboura, I am looking for a job.\nJob: ${role}\nMy area: `;
+  const setMode = mode => {
+    sec.dataset.mode = mode;
+    btns.forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === mode ? 'true' : 'false'));
+    cards.forEach(c => { const r = c.querySelector('.sxc-role'); if (r) c.href = WA + encodeURIComponent(msg(mode, r.textContent.trim())); });
+  };
+  btns.forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  setMode('job');
+  /* hero buttons jump straight to the jobs, in the right mode */
+  document.querySelectorAll('a[data-go]').forEach(a => a.addEventListener('click', e => {
+    e.preventDefault(); setMode(a.dataset.go);
+    const y = sec.getBoundingClientRect().top + scrollY - 64;
+    if (window.LB_lenis) LB_lenis.scrollTo(y, { immediate: true, force: true }); else scrollTo(0, y);
+    const m = sec.querySelector('.sx-mode'); if (m){ m.classList.remove('flash'); void m.offsetWidth; m.classList.add('flash'); }
+  }));
+})();

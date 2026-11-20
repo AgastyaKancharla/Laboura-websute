@@ -2212,3 +2212,12 @@ h1,h2,h3,.t1,.t2,.final{font-family:var(--display);font-weight:600;letter-spacin
 }
 @media (max-width:860px){.eq-big{line-height:1.04}}
 @media (max-width:860px){.jt-stamp:not(.on){transform:rotate(-9deg) scale(1.15)}}
+
+/* Sectors: job / staff switch */
+.sx-mode{display:inline-flex;width:max-content;max-width:100%;justify-self:start;align-self:start;gap:4px;margin-top:22px;padding:4px;border-radius:999px;background:#F1F1F4}
+.sx-mode button{min-height:44px;padding:0 20px;border:0;border-radius:999px;background:none;font:600 15px/1 var(--body);color:#444;cursor:pointer;transition:background .25s,color .25s}
+.sx-mode button[aria-pressed=true]{background:#E06A00;color:#fff}
+.sx-mode button[data-mode=staff][aria-pressed=true]{background:#0A4FD8}
+.sx-mode.flash{animation:sxFlash .9s ease}
+@keyframes sxFlash{30%{box-shadow:0 0 0 6px rgba(224,106,0,.25)}}
+@media (max-width:860px){.sx-mode{margin-top:16px}.sx-mode button{padding:0 16px;font-size:14px}}
