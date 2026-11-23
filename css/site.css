@@ -2275,3 +2275,4 @@ html.jp-open .fab{opacity:0;pointer-events:none}
 /* hidden anti-spam field (people never see it; bots fill it) */
 .hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
 #eq-wa{margin-right:8px}
+#eq-wa[hidden]{display:none}
