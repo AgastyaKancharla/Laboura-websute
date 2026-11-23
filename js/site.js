@@ -145,3 +145,45 @@ function frame(t){
 }
 requestAnimationFrame(frame);
 })();
+
+/* ---------- Leads: website forms and button taps go to the "Laboura Leads" Google Sheet ----------
+   The Google script (tools/leads-apps-script.gs) saves each one and emails hello@laboura.com.
+   While LEADS_URL is empty, forms keep working the old way (they open WhatsApp). */
+(() => {
+  const LEADS_URL = window.LB_LEADS_URL || '';
+  const pack = (kind, data) => JSON.stringify(Object.assign({ kind, page: location.pathname.split('/').pop() || 'home' }, data));
+  window.LB_LEADS = {
+    on: !!LEADS_URL,
+    /* forms: resolves when saved; rejects only when it surely failed (no URL, offline) */
+    send(kind, data){
+      if (!LEADS_URL) return Promise.reject(new Error('off'));
+      return fetch(LEADS_URL, { method: 'POST', body: pack(kind, data) })
+        .then(r => r.json().catch(() => ({ ok: r.ok })))
+        .then(j => { if (j && j.ok === false) throw new Error('not saved'); return true; })
+        .catch(err => { if (navigator.onLine && err && err.message !== 'not saved') return true; throw err; });
+    },
+    /* button taps: fire and forget, never slows the tap down */
+    beacon(kind, data){
+      if (!LEADS_URL) return;
+      const body = pack(kind, data);
+      try { if (navigator.sendBeacon && navigator.sendBeacon(LEADS_URL, new Blob([body], { type: 'text/plain' }))) return; } catch (e) {}
+      fetch(LEADS_URL, { method: 'POST', mode: 'no-cors', keepalive: true, body }).catch(() => {});
+    }
+  };
+  /* every WhatsApp, call and app button on the site */
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a[href]'); if (!a) return;
+    const h = a.getAttribute('href') || '';
+    const button = a.classList.contains('sxc') && document.getElementById('jp') ? 'Opened job'
+      : h.includes('wa.me/') ? 'WhatsApp' : h.startsWith('tel:') ? 'Call'
+      : (a.classList.contains('jp-app') || /play\.google|apps\.apple/.test(h)) ? 'App' : '';
+    if (!button) return;
+    let message = '';
+    if (button === 'WhatsApp' && !a.classList.contains('sxc')){ const m = h.split('text=')[1]; if (m) try { message = decodeURIComponent(m).replace(/\n+/g, ' | '); } catch (err) {} }
+    const panel = a.closest('.jp'), card = a.closest('.sxc');
+    const job = panel ? (panel.querySelector('.jp-t') || {}).textContent || '' : card ? (card.querySelector('.sxc-role') || {}).textContent || '' : '';
+    LB_LEADS.beacon('click', { button, job: job.trim(), message: message.slice(0, 300),
+      label: ((a.querySelector('b') || a).textContent || '').trim().replace(/\s+/g, ' ').slice(0, 80),
+      device: matchMedia('(pointer:coarse)').matches ? 'Phone / tablet' : 'Computer' });
+  }, true);
+})();

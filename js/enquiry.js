@@ -75,18 +75,21 @@
 
   form.addEventListener('submit', async e => {
     e.preventDefault(); if (!check()) return;
-    const d = data(), url = form.dataset.endpoint, btn = form.querySelector('.eq-send');
-    if (url){
+    const d = data(), btn = form.querySelector('.eq-send');
+    const wa = document.getElementById('eq-wa');
+    if (wa) wa.href = WA + '?text=' + encodeURIComponent(text(d));
+    if (window.LB_LEADS && LB_LEADS.on){
       btn.disabled = true; btn.classList.add('wait');
       try {
-        const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ subject: 'Company enquiry: ' + d.company, ...d, jobs: d.jobs.map(j => `${j.role}: ${j.count}`).join(', '), message: text(d) }) });
-        if (!r.ok) throw 0;
-        finish(d, 'We have your enquiry. Our team will call you back on ' + d.phone + '.');
+        await LB_LEADS.send('enquiry', { company: d.company, name: d.name, email: d.email, phone: d.phone,
+          jobs: d.jobs.map(j => `${j.role}: ${j.count}`).join(', '), total: d.total, website: (form.elements.website || {}).value || '' });
+        if (wa) wa.hidden = false;
+        finish(d, 'We have your enquiry. Our team will call you back on ' + d.phone + ' within 24 hours.');
         return;
-      } catch (_) { /* fall back to WhatsApp below */ }
+      } catch (_) { /* not saved: fall back to WhatsApp below */ }
       finally { btn.disabled = false; btn.classList.remove('wait'); }
     }
+    if (wa) wa.hidden = true;
     window.open(WA + '?text=' + encodeURIComponent(text(d)), '_blank', 'noopener');
     finish(d, 'Your enquiry is ready in WhatsApp. Press send there, and our team will call you back.');
   });

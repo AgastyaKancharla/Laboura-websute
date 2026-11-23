@@ -587,7 +587,15 @@ requestAnimationFrame(frame);
     const t = ['Fraud report from the Laboura website', '', 'What: ' + f.querySelector('[name=kind]:checked').value,
       'Their number, UPI or website: ' + (E.them.value.trim() || 'Not known'), 'Money paid: ' + (E.paid.value.trim() || 'Not said'),
       '', E.what.value.trim(), '', 'My phone: +91 ' + E.phone.value].join('\n');
-    window.open('https://wa.me/91XXXXXXXXXX?text=' + encodeURIComponent(t), '_blank', 'noopener');
-    f.innerHTML = '<div class="frf-done"><span class="eq-tick" aria-hidden="true"></span><h3>Thank you for telling us.</h3><p>Your report is ready in WhatsApp. Press send there. We reply within 24 hours.</p></div>';
+    const waUrl = 'https://wa.me/91XXXXXXXXXX?text=' + encodeURIComponent(t);
+    const done = saved => { f.innerHTML = '<div class="frf-done"><span class="eq-tick" aria-hidden="true"></span><h3>Thank you for telling us.</h3><p>'
+      + (saved ? 'We have your report. Our team will call you within 24 hours.</p><a class="btn btn-line" target="_blank" rel="noopener" href="' + waUrl + '">Also send it on WhatsApp</a>'
+               : 'Your report is ready in WhatsApp. Press send there. We reply within 24 hours.</p>') + '</div>'; };
+    const viaWA = () => { window.open(waUrl, '_blank', 'noopener'); done(false); };
+    if (!(window.LB_LEADS && LB_LEADS.on)) return viaWA();
+    const btn = f.querySelector('[type=submit]'); btn.disabled = true;
+    LB_LEADS.send('fraud', { what: f.querySelector('[name=kind]:checked').value, them: E.them.value.trim(), paid: E.paid.value.trim(),
+      details: E.what.value.trim(), phone: '+91 ' + E.phone.value, website: (E.website || {}).value || '' })
+      .then(() => done(true), () => { btn.disabled = false; viaWA(); });
   });
 })();

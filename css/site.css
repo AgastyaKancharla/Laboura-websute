@@ -2272,3 +2272,6 @@ html.jp-open .fab{opacity:0;pointer-events:none}
 /* staff mode: the "jobs open" count is for job seekers only */
 .sx[data-mode=staff] .sxc-open{display:none}
 .jp [hidden]{display:none!important}
+/* hidden anti-spam field (people never see it; bots fill it) */
+.hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
+#eq-wa{margin-right:8px}
