@@ -150,7 +150,7 @@ requestAnimationFrame(frame);
    The Google script (tools/leads-apps-script.gs) saves each one and emails hello@laboura.com.
    While LEADS_URL is empty, forms keep working the old way (they open WhatsApp). */
 (() => {
-  const LEADS_URL = window.LB_LEADS_URL || '';
+  const LEADS_URL = window.LB_LEADS_URL || 'https://script.google.com/macros/s/AKfycbwylS-ce6pQ-h2zcTu4EuNuzAbXAA5tacJueIVxEbVRpbVp35XJmgnXMSa3tPs90-Ju/exec';
   const pack = (kind, data) => JSON.stringify(Object.assign({ kind, page: location.pathname.split('/').pop() || 'home' }, data));
   window.LB_LEADS = {
     on: !!LEADS_URL,

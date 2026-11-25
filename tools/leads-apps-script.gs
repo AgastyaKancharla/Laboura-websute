@@ -1,5 +1,5 @@
 /**
- * Laboura website leads → Google Sheet + email alert
+ * Laboura website leads → Google Sheet + email alert to us + thank-you email to the company
  *
  * Set up (5 minutes, signed in as hello@laboura.com):
  *  1. Create a Google Sheet named "Laboura Leads".
@@ -48,6 +48,7 @@ function doPost(e) {
     try { sheetFor(tab).appendRow(row.map(safe)); } finally { lock.releaseLock(); }
 
     if (tab.email) alert(d, tab, row);
+    if (d.kind === 'enquiry') thanks(d);
     return reply(true);
   } catch (err) {
     console.error(err);
@@ -84,6 +85,23 @@ function alert(d, tab, row) {
   const opts = { to: ALERT_TO, subject, body, name: 'Laboura website' };
   if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = d.email;
   MailApp.sendEmail(opts);
+}
+
+// Thank-you email to the company that filled the enquiry form.
+function thanks(d) {
+  if (!d.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return;
+  try {
+    const name = clip(d.name || '', 60) || 'there';
+    const body = `Hi ${name},\n\n`
+      + `Thank you for contacting Laboura. We have your enquiry for ${clip(d.company || 'your company', 80)}.\n\n`
+      + `What you asked for:\n${clip(d.jobs || '-', 600)}\nTotal people: ${d.total || '-'}\n\n`
+      + `Our team will call you on ${clip(d.phone || 'your number', 20)} within 24 hours `
+      + `(Monday to Saturday, 9:30 am to 7 pm).\n\n`
+      + `To add anything, just reply to this email.\n\n`
+      + `Team Laboura\nhello@laboura.com\nhttps://www.laboura.in`;
+    MailApp.sendEmail({ to: d.email, subject: 'We have your enquiry - Laboura', body,
+                        name: 'Laboura', replyTo: ALERT_TO });
+  } catch (err) { console.error(err); }
 }
 
 // Stops a flood of fake button taps from filling the Sheet (max 300 a minute).
