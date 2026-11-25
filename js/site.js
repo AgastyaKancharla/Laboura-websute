@@ -158,9 +158,8 @@ requestAnimationFrame(frame);
     send(kind, data){
       if (!LEADS_URL) return Promise.reject(new Error('off'));
       return fetch(LEADS_URL, { method: 'POST', body: pack(kind, data) })
-        .then(r => r.json().catch(() => ({ ok: r.ok })))
-        .then(j => { if (j && j.ok === false) throw new Error('not saved'); return true; })
-        .catch(err => { if (navigator.onLine && err && err.message !== 'not saved') return true; throw err; });
+        .then(r => r.json())
+        .then(j => { if (!j || j.ok !== true) throw new Error('not saved'); return true; });
     },
     /* button taps: fire and forget, never slows the tap down */
     beacon(kind, data){
