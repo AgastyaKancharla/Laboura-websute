@@ -13,7 +13,7 @@
   const line = (role = '', n = 1) => {
     const id = ++uid, li = document.createElement('li');
     li.className = 'eq-job';
-    li.innerHTML = `<label class="eq-role"><span class="sr">Job ${id}</span><input list="eq-roles" name="role" autocomplete="off" placeholder="Type or pick a job" required></label>
+    li.innerHTML = `<label class="eq-role"><span class="sr">Job ${id}</span><input name="role" autocomplete="off" placeholder="Tap to pick a job, or type" required role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="eq-pick-${id}"><ul class="eq-pick" id="eq-pick-${id}" role="listbox" hidden></ul></label>
       <div class="eq-step" role="group" aria-label="How many people">
         <button type="button" class="eq-minus" aria-label="One less">&minus;</button>
         <input type="number" name="count" inputmode="numeric" min="1" max="9999" step="1" aria-label="How many people">
@@ -22,6 +22,7 @@
       <button type="button" class="eq-del" aria-label="Remove this job"><span aria-hidden="true">&times;</span></button>`;
     const r = li.querySelector('[name=role]'), c = li.querySelector('[name=count]');
     r.value = role; c.value = n;
+    picker(r, li.querySelector('.eq-pick'));
     const bump = d => { c.value = Math.max(1, Math.min(9999, (parseInt(c.value, 10) || 0) + d)); li.classList.remove('pop'); void li.offsetWidth; li.classList.add('pop'); sum(); };
     li.querySelector('.eq-minus').addEventListener('click', () => bump(-1));
     li.querySelector('.eq-plus').addEventListener('click', () => bump(1));
@@ -30,6 +31,43 @@
     li.querySelector('.eq-del').addEventListener('click', () => { li.classList.add('out'); setTimeout(() => { li.remove(); sum(); (list.querySelector('.eq-job:last-child [name=role]') || add).focus(); }, 220); });
     list.appendChild(li); sum(); return r;
   };
+
+  /* Job picker: a list that opens on tap and filters as you type (the built-in
+     datalist shows nothing on many Android phones until you type). */
+  const ROLES = [...document.querySelectorAll('#eq-roles option')].map(o => o.value);
+  function picker(input, box){
+    let items = [], at = -1, quiet = 0;
+    const show = () => {
+      if (Date.now() < quiet) return;
+      const q = input.value.trim().toLowerCase();
+      const exact = ROLES.some(r => r.toLowerCase() === q);
+      items = ROLES.filter(r => !q || exact || r.toLowerCase().includes(q));
+      if (q && !exact) items.push('__own__');
+      at = -1;
+      box.innerHTML = items.map((r, i) => r === '__own__'
+        ? `<li role="option" id="${box.id}-${i}" class="own">Use "${input.value.trim().replace(/[<>&"]/g, '')}"</li>`
+        : `<li role="option" id="${box.id}-${i}">${r}</li>`).join('');
+      box.hidden = !items.length; input.setAttribute('aria-expanded', String(!box.hidden));
+    };
+    const hide = () => { box.hidden = true; input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); };
+    const pick = (i, tap) => { if (items[i] && items[i] !== '__own__') input.value = items[i]; quiet = Date.now() + 400; hide(); input.removeAttribute('aria-invalid'); if (tap) input.blur(); };
+    const mark = i => { at = (i + items.length) % items.length; [...box.children].forEach((li, k) => li.classList.toggle('on', k === at));
+      const el = box.children[at]; if (el){ el.scrollIntoView({ block: 'nearest' }); input.setAttribute('aria-activedescendant', el.id); } };
+    input.addEventListener('focus', show);
+    input.addEventListener('click', () => { if (box.hidden) show(); });
+    input.addEventListener('input', show);
+    input.addEventListener('blur', () => setTimeout(hide, 150));
+    input.addEventListener('keydown', e => {
+      if (box.hidden && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { show(); e.preventDefault(); return; }
+      if (box.hidden) return;
+      if (e.key === 'ArrowDown') { mark(at + 1); e.preventDefault(); }
+      else if (e.key === 'ArrowUp') { mark(at - 1); e.preventDefault(); }
+      else if (e.key === 'Enter' && at >= 0) { pick(at); e.preventDefault(); }
+      else if (e.key === 'Escape') hide();
+    });
+    box.addEventListener('pointerdown', e => e.preventDefault());   // keep the input focused while tapping
+    box.addEventListener('click', e => { const li = e.target.closest('li'); if (li) pick([...box.children].indexOf(li), true); });
+  }
 
   function sum(){
     const rows = [...list.querySelectorAll('.eq-job:not(.out)')];

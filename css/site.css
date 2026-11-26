@@ -2276,3 +2276,12 @@ html.jp-open .fab{opacity:0;pointer-events:none}
 .hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
 #eq-wa{margin-right:8px}
 #eq-wa[hidden]{display:none}
+
+/* enquiry job picker */
+.eq-role{position:relative;display:block}
+.eq-pick{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;list-style:none;margin:0;padding:6px;max-height:min(260px,45vh);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#fff;border:1.5px solid #DADAE0;border-radius:16px;box-shadow:0 24px 50px -20px rgba(0,0,0,.35)}
+.eq-pick[hidden]{display:none}
+.eq-pick li{padding:12px 14px;border-radius:10px;font:500 16px/1.25 var(--body);color:#000;cursor:pointer}
+.eq-pick li:hover,.eq-pick li.on{background:#FFF1E6}
+.eq-pick li.own{color:#0A4FD8;font-weight:700}
+.eq-job{position:relative}.eq-job:focus-within{z-index:6}
