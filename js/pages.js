@@ -111,7 +111,7 @@ if (jl){
     if (q.length < 3){ light(0); say('Type your city to check.'); return; }
     const hit = map.find(([c]) => norm(c).startsWith(q) || q.startsWith(norm(c)));
     if (hit){ ans.classList.add('yes'); light(hit[3]); say(hit[0] === hit[1] ? `Yes! Laboura ${verb} across <b>${hit[1]}</b>.` : `Yes! Laboura ${verb} in <b>${hit[0]}</b>, ${hit[1]}.`); }
-    else { light(0); ans.classList.add('no'); const name = inp.value.trim().replace(/[<>&"]/g, ''); say(`Not in <b>${name}</b> yet. Give a missed call and we will tell you when we start there.`); }
+    else { light(0); ans.classList.add('no'); const name = inp.value.trim().replace(/[<>&"]/g, ''); say(`Not in <b>${name}</b> yet. Message us on WhatsApp and we will tell you when we start there.`); }
   };
   inp.addEventListener('input', () => { inp.dataset.user = '1'; check(); });
   $$('.jl-states button', jl).forEach(b => b.addEventListener('click', () => { const i = +b.dataset.s, box = boxes[i - 1]; inp.dataset.user = '1';

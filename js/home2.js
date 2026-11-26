@@ -231,9 +231,10 @@ requestAnimationFrame(frame);
     jp.querySelector('.jp-k').textContent = staff ? 'Hire for this job' : 'Get this job';
     jp.querySelector('#jp-ask').textContent = staff ? 'How do you want to send your request?' : 'How do you want to start?';
     jp.querySelector('.jp-wa').href = WA + encodeURIComponent(msg(mode, role));
-    jp.querySelector('.jp-call small').textContent = staff ? 'Free. Our team calls you back.' : 'Free. We call you back.';
+    const jc = jp.querySelector('.jp-call small'); if (jc) jc.textContent = staff ? 'Free. Our team calls you back.' : 'Free. We call you back.';
     const app = jp.querySelector('.jp-app');
     app.querySelector('svg').innerHTML = staff ? '<path d="M7 3h7l4 4v14H7z"/><path d="M10 12h5M10 16h5"/>' : '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>';
+    app.hidden = !staff; /* app download link comes back when the APK is hosted */
     if (staff){ app.href = 'company-enquiry.html'; app.querySelector('b').textContent = 'Fill the hiring form'; app.querySelector('small').textContent = 'For many people or many jobs at once.'; }
     else { app.href = '#'; app.querySelector('b').textContent = 'Download the Laboura app'; app.querySelector('small').textContent = 'Register yourself in 2 minutes.'; }
   };
