@@ -236,7 +236,7 @@ requestAnimationFrame(frame);
     const app = jp.querySelector('.jp-app');
     app.querySelector('svg').innerHTML = staff ? '<path d="M7 3h7l4 4v14H7z"/><path d="M10 12h5M10 16h5"/>' : '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>';
     app.hidden = true; /* app download comes back when the APK is hosted; the form covers staff requests */
-    if (staff){ app.href = 'company-enquiry.html'; app.querySelector('b').textContent = 'Fill the hiring form'; app.querySelector('small').textContent = 'For many people or many jobs at once.'; }
+    if (staff){ app.href = 'apply.html?for=staff'; app.querySelector('b').textContent = 'Fill the hiring form'; app.querySelector('small').textContent = 'For many people or many jobs at once.'; }
     else { app.href = '#'; app.querySelector('b').textContent = 'Download the Laboura app'; app.querySelector('small').textContent = 'Register yourself in 2 minutes.'; }
   };
   cards.forEach(c => c.addEventListener('click', e => {
