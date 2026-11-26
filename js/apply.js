@@ -4,6 +4,7 @@
 (() => {
   const form = document.getElementById('ap-form'); if (!form) return;
   const WA = 'https://wa.me/917483919241';
+  const APP_LIVE = false;   /* switch on when the app is on the Play Store and App Store */
   const err = document.getElementById('ap-err'), done = document.getElementById('ap-done');
   const parts = [...form.querySelectorAll('.ap-part')], sumBar = form.querySelector('.ap-sum');
   const ROLES = [...document.querySelectorAll('#ap-roles option')].map(o => o.value);
@@ -43,7 +44,7 @@
     const hide = () => { box.hidden = true; input.setAttribute('aria-expanded', 'false'); };
     input.addEventListener('focus', show);
     input.addEventListener('click', () => { if (box.hidden) show(); });
-    input.addEventListener('input', show);
+    input.addEventListener('input', () => { show(); other(input); });
     input.addEventListener('blur', () => setTimeout(hide, 150));
     input.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
     box.addEventListener('pointerdown', e => e.preventDefault());
@@ -51,9 +52,16 @@
       const li = e.target.closest('li'); if (!li) return;
       const it = items[[...box.children].indexOf(li)];
       if (it && it !== '__own__') input.value = it;
-      quiet = Date.now() + 400; hide(); input.removeAttribute('aria-invalid'); input.blur();
+      quiet = Date.now() + 400; hide(); input.removeAttribute('aria-invalid'); input.blur(); other(input);
     });
   }
+  /* "Others": show a box to type the job that is not in the list */
+  function other(input){
+    const box = (input === f.jrole ? f.jother : f.sother).closest('.ap-other');
+    const on = input.value.trim().toLowerCase() === 'others';
+    box.hidden = !on; if (on) setTimeout(() => box.querySelector('input').focus(), 60);
+  }
+  const roleOf = (input, extra) => input.value.trim().toLowerCase() === 'others' ? 'Other: ' + extra.value.trim() : input.value.trim();
   picker(f.jrole, document.getElementById('ap-pick-j'));
   picker(f.srole, document.getElementById('ap-pick-s'));
 
@@ -72,25 +80,27 @@
     if (v === 'job') {
       if (!f.jname.value.trim()) return fail(f.jname, 'Please write your name.');
       if (!PHONE.test(f.jphone.value)) return fail(f.jphone, 'Please write a 10-digit mobile number.');
-      if (!f.jrole.value.trim()) return fail(f.jrole, 'Please pick the job you want.');
+      if (!f.jrole.value.trim()) return fail(f.jrole, 'Please pick the job you want to apply for.');
+      if (f.jrole.value.trim().toLowerCase() === 'others' && !f.jother.value.trim()) return fail(f.jother, 'Please type the job you want.');
       if (!form.querySelector('[name=exp]:checked')) return fail(form.querySelector('[name=exp]'), 'Please choose your experience.');
-      if (!f.jarea.value.trim()) return fail(f.jarea, 'Please write your area and city.');
+      if (!f.jarea.value.trim()) return fail(f.jarea, 'Please tell us where you stay.');
       if (f.jemail.value.trim() && !EMAIL.test(f.jemail.value.trim())) return fail(f.jemail, 'Please check the email address, or leave it empty.');
     } else {
       if (!f.sname.value.trim()) return fail(f.sname, 'Please write your name.');
       if (!f.sbiz.value.trim()) return fail(f.sbiz, 'Please write your business name.');
       if (!PHONE.test(f.sphone.value)) return fail(f.sphone, 'Please write a 10-digit mobile number.');
       if (!f.srole.value.trim()) return fail(f.srole, 'Please pick the staff you need.');
-      if (!f.sarea.value.trim()) return fail(f.sarea, 'Please write your area and city.');
+      if (f.srole.value.trim().toLowerCase() === 'others' && !f.sother.value.trim()) return fail(f.sother, 'Please type the staff you need.');
+      if (!f.sarea.value.trim()) return fail(f.sarea, 'Please tell us where your business is.');
       if (f.semail.value.trim() && !EMAIL.test(f.semail.value.trim())) return fail(f.semail, 'Please check the email address, or leave it empty.');
     }
     return true;
   };
 
   const data = v => v === 'job'
-    ? { name: f.jname.value.trim(), phone: '+91 ' + f.jphone.value, role: f.jrole.value.trim(),
+    ? { name: f.jname.value.trim(), phone: '+91 ' + f.jphone.value, role: roleOf(f.jrole, f.jother),
         experience: form.querySelector('[name=exp]:checked').value, area: f.jarea.value.trim(), email: f.jemail.value.trim() }
-    : { name: f.sname.value.trim(), business: f.sbiz.value.trim(), phone: '+91 ' + f.sphone.value, role: f.srole.value.trim(),
+    : { name: f.sname.value.trim(), business: f.sbiz.value.trim(), phone: '+91 ' + f.sphone.value, role: roleOf(f.srole, f.sother),
         count: parseInt(cnt.value, 10) || 1, area: f.sarea.value.trim(), email: f.semail.value.trim() };
 
   const text = (v, d) => (v === 'job'
@@ -98,11 +108,13 @@
     : ['Hi Laboura, I need staff.', '', 'Name: ' + d.name, 'Business: ' + d.business, 'Phone: ' + d.phone, 'Staff: ' + d.role + ' x ' + d.count, 'Area: ' + d.area]
   ).concat(d.email ? ['Email: ' + d.email] : []).join('\n');
 
-  const finish = (d, msg, waHref) => {
+  const finish = (v, d) => {
     document.getElementById('ap-who').textContent = d.name.split(' ')[0];
-    document.getElementById('ap-done-msg').textContent = msg;
-    const wa = document.getElementById('ap-wa');
-    wa.hidden = !waHref; if (waHref) wa.href = waHref;
+    document.getElementById('ap-done-msg').textContent = v === 'job'
+      ? `We have received your details. Our team will call you on ${d.phone} within 24 hours.`
+      : `We have received your staff request. Our team will call you on ${d.phone} within 24 hours.`;
+    document.getElementById('ap-wa').href = WA + '?text=' + encodeURIComponent(text(v, d));
+    document.querySelector('.ap-app').hidden = !APP_LIVE;
     form.hidden = true; done.hidden = false; done.focus();
   };
 
@@ -110,22 +122,16 @@
     e.preventDefault();
     const v = side(); if (!check(v)) return;
     const d = data(v), btn = form.querySelector('.eq-send');
-    if (window.LB_LEADS && LB_LEADS.on) {
-      btn.disabled = true; btn.classList.add('wait');
-      try {
+    btn.disabled = true; btn.classList.add('wait');
+    try {
+      if (window.LB_LEADS && LB_LEADS.on)
         await LB_LEADS.send(v === 'job' ? 'jobseeker' : 'staff', Object.assign({ website: (f.website || {}).value || '' }, d));
-        finish(d, v === 'job'
-          ? `We have your details. Our team will call you on ${d.phone} within 24 hours to talk about ${d.role} jobs near ${d.area}.`
-          : `We have your staff request (${d.role}: ${d.count}). Our team will call you on ${d.phone} within 24 hours.`);
-        return;
-      } catch (_) { /* not saved: offer WhatsApp below */ }
-      finally { btn.disabled = false; btn.classList.remove('wait'); }
-    }
-    finish(d, 'We could not save your details just now. Please press the button below to send them to us on WhatsApp.',
-      WA + '?text=' + encodeURIComponent(text(v, d)));
+    } catch (_) { /* the WhatsApp button on the next screen carries the same details */ }
+    finally { btn.disabled = false; btn.classList.remove('wait'); }
+    finish(v, d);
   });
 
   document.getElementById('ap-again').addEventListener('click', () => {
-    form.reset(); choose(''); done.hidden = true; form.hidden = false;
+    form.reset(); choose(''); form.querySelectorAll('.ap-other').forEach(x => x.hidden = true); done.hidden = true; form.hidden = false;
   });
 })();

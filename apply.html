@@ -51,8 +51,8 @@
     <fieldset class="eq-set">
       <legend>What are you looking for?</legend>
       <div class="ap-pick" role="radiogroup" aria-label="What are you looking for?">
-        <label class="ap-big"><input type="radio" name="want" value="job"><span><b>I need a job</b><small>I am looking for work</small></span></label>
-        <label class="ap-big staff"><input type="radio" name="want" value="staff"><span><b>I need staff</b><small>I am hiring for my business</small></span></label>
+        <label class="ap-big"><input type="radio" name="want" value="job"><span><i class="ap-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg></i><b>I need a job</b><small>I am looking for work</small></span></label>
+        <label class="ap-big staff"><input type="radio" name="want" value="staff"><span><i class="ap-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l2-5h14l2 5M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0zM5 13v7h14v-7M10 20v-4h4v4"/></svg></i><b>I need staff</b><small>I am hiring for my business</small></span></label>
       </div>
     </fieldset>
     <div class="ap-part" data-for="job" hidden>
@@ -60,9 +60,10 @@
         <legend>About you</legend>
         <label class="eq-f"><span>Your name</span><input name="jname" autocomplete="name" placeholder="Full name"></label>
         <label class="eq-f"><span>Mobile number</span><span class="eq-tel"><i>+91</i><input name="jphone" type="tel" autocomplete="tel-national" inputmode="numeric" maxlength="10" placeholder="10-digit mobile"></span></label>
-        <label class="eq-f ap-role"><span>Job you want</span><input name="jrole" autocomplete="off" placeholder="Tap to pick a job, or type" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ap-pick-j"><ul class="eq-pick" id="ap-pick-j" role="listbox" hidden></ul></label>
+        <label class="eq-f ap-role"><span>Which job do you want to apply for?</span><input name="jrole" autocomplete="off" placeholder="Tap to pick a job, or type" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ap-pick-j"><ul class="eq-pick" id="ap-pick-j" role="listbox" hidden></ul></label>
+        <label class="eq-f ap-other" hidden><span>Type the job you want</span><input name="jother" autocomplete="off" placeholder="For example, Tailor"></label>
         <div class="eq-f"><span>Experience</span><div class="ap-chips" role="radiogroup" aria-label="Experience"><label class="ap-chip"><input type="radio" name="exp" value="Fresher"><span>Fresher</span></label><label class="ap-chip"><input type="radio" name="exp" value="Less than 1 year"><span>Less than 1 year</span></label><label class="ap-chip"><input type="radio" name="exp" value="1–3 years"><span>1–3 years</span></label><label class="ap-chip"><input type="radio" name="exp" value="3+ years"><span>3+ years</span></label></div></div>
-        <label class="eq-f"><span>Your area and city</span><input name="jarea" autocomplete="address-level2" placeholder="For example, Jayanagar, Bengaluru"></label>
+        <label class="eq-f"><span>Where do you stay? <em>(area and city)</em></span><input name="jarea" autocomplete="address-level2" placeholder="For example, Jayanagar, Bengaluru"></label>
         <label class="eq-f"><span>Email <em>(optional)</em></span><input name="jemail" type="email" autocomplete="email" inputmode="email" placeholder="you@gmail.com"></label>
       </fieldset>
     </div>
@@ -73,14 +74,15 @@
         <label class="eq-f"><span>Business name</span><input name="sbiz" autocomplete="organization" placeholder="For example, Reddy's Mess"></label>
         <label class="eq-f"><span>Mobile number</span><span class="eq-tel"><i>+91</i><input name="sphone" type="tel" autocomplete="tel-national" inputmode="numeric" maxlength="10" placeholder="10-digit mobile"></span></label>
         <div class="ap-need">
-          <label class="eq-f ap-role"><span>Staff you need</span><input name="srole" autocomplete="off" placeholder="Tap to pick a job, or type" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ap-pick-s"><ul class="eq-pick" id="ap-pick-s" role="listbox" hidden></ul></label>
+          <label class="eq-f ap-role"><span>Which staff do you need?</span><input name="srole" autocomplete="off" placeholder="Tap to pick a job, or type" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ap-pick-s"><ul class="eq-pick" id="ap-pick-s" role="listbox" hidden></ul></label>
           <div class="eq-f"><span>How many</span><div class="eq-step" role="group" aria-label="How many people"><button type="button" class="eq-minus" aria-label="One less">&minus;</button><input type="number" name="scount" inputmode="numeric" min="1" max="999" value="1" aria-label="How many people"><button type="button" class="eq-plus" aria-label="One more">+</button></div></div>
         </div>
-        <label class="eq-f"><span>Area and city</span><input name="sarea" autocomplete="address-level2" placeholder="For example, Jayanagar, Bengaluru"></label>
+        <label class="eq-f ap-other ap-other-s" hidden><span>Type the staff you need</span><input name="sother" autocomplete="off" placeholder="For example, Car washer"></label>
+        <label class="eq-f"><span>Where is your business? <em>(area and city)</em></span><input name="sarea" autocomplete="address-level2" placeholder="For example, Jayanagar, Bengaluru"></label>
         <label class="eq-f"><span>Email <em>(optional)</em></span><input name="semail" type="email" autocomplete="email" inputmode="email" placeholder="you@business.com"></label>
       </fieldset>
     </div>
-    <datalist id="ap-roles"><option value="Sales staff"><option value="Cashier"><option value="Billing staff"><option value="Store helper"><option value="Stock keeper"><option value="Cook"><option value="Kitchen helper"><option value="Waiter"><option value="Dishwasher"><option value="Cloud kitchen staff"><option value="Room boy"><option value="Housekeeping"><option value="Front desk"><option value="Steward"><option value="Hotel cook"><option value="Delivery boy"><option value="Bike rider"><option value="Van driver"><option value="Loader"><option value="Picker"><option value="Packer"><option value="Store keeper"><option value="Forklift driver"><option value="Machine operator"><option value="Helper"><option value="Packing staff"><option value="Quality checker"><option value="Fitter"><option value="Ward boy"><option value="Nurse aide"><option value="Patient care"><option value="Clinic receptionist"><option value="Cleaning staff"><option value="Security guard"><option value="Watchman"><option value="Bouncer"><option value="Security supervisor"><option value="Housekeeping staff"><option value="Office boy"><option value="Pantry staff"><option value="Cleaner"><option value="Mason"><option value="Electrician"><option value="Plumber"><option value="Painter"><option value="Carpenter"><option value="Beautician"><option value="Hair stylist"><option value="Spa therapist"><option value="Salon helper"><option value="Receptionist"><option value="Telecaller"><option value="Data entry"><option value="Field sales"><option value="Accounts helper"></datalist>
+    <datalist id="ap-roles"><option value="Sales staff"><option value="Cashier"><option value="Billing staff"><option value="Store helper"><option value="Stock keeper"><option value="Cook"><option value="Kitchen helper"><option value="Waiter"><option value="Dishwasher"><option value="Cloud kitchen staff"><option value="Room boy"><option value="Housekeeping"><option value="Front desk"><option value="Steward"><option value="Hotel cook"><option value="Delivery boy"><option value="Bike rider"><option value="Van driver"><option value="Loader"><option value="Picker"><option value="Packer"><option value="Store keeper"><option value="Forklift driver"><option value="Machine operator"><option value="Helper"><option value="Packing staff"><option value="Quality checker"><option value="Fitter"><option value="Ward boy"><option value="Nurse aide"><option value="Patient care"><option value="Clinic receptionist"><option value="Cleaning staff"><option value="Security guard"><option value="Watchman"><option value="Bouncer"><option value="Security supervisor"><option value="Housekeeping staff"><option value="Office boy"><option value="Pantry staff"><option value="Cleaner"><option value="Mason"><option value="Electrician"><option value="Plumber"><option value="Painter"><option value="Carpenter"><option value="Beautician"><option value="Hair stylist"><option value="Spa therapist"><option value="Salon helper"><option value="Receptionist"><option value="Telecaller"><option value="Data entry"><option value="Field sales"><option value="Accounts helper"><option value="Others"></datalist>
     <div class="eq-sum ap-sum" hidden><p class="ap-sum-t">We call you back within 24 hours.</p>
       <button class="btn btn-sodium eq-send" type="submit">Send my details</button></div>
     <label class="hp" aria-hidden="true">Leave this empty<input name="website" tabindex="-1" autocomplete="off"></label>
@@ -90,8 +92,12 @@
   <div class="eq-done" id="ap-done" hidden tabindex="-1">
     <span class="eq-tick" aria-hidden="true"></span>
     <h2>Thank you, <span id="ap-who"></span>.</h2>
-    <p id="ap-done-msg">We have your details. Our team will call you back within 24 hours.</p>
-    <a class="btn btn-sodium" id="ap-wa" href="#" target="_blank" rel="noopener" hidden>Send on WhatsApp</a>
+    <p id="ap-done-msg">We have received your details. Our team will call you within 24 hours.</p>
+    <p class="ap-fast">Want a faster reply?</p>
+    <div class="ap-more">
+      <a class="btn btn-sodium" id="ap-wa" href="https://wa.me/917483919241" target="_blank" rel="noopener">Chat with us on WhatsApp</a>
+      <p class="ap-app" hidden>Or install the Laboura app: search <b>Laboura</b> on the Play Store or App Store.</p>
+    </div>
     <button type="button" class="btn btn-line" id="ap-again">Send another</button>
   </div>
 </section>
@@ -125,6 +131,6 @@
 <script src="js/site.js?v=bc765361"></script>
 <script src="js/home2.js?v=6618afc8"></script>
 <script src="js/pages.js?v=f27f219c"></script>
-<script src="js/apply.js?v=1"></script>
+<script src="js/apply.js?v=2"></script>
 </body>
 </html>
