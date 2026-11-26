@@ -3,7 +3,7 @@
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const WA = 'https://wa.me/91XXXXXXXXXX';
+const WA = 'https://wa.me/917483919241';
 const inr = n => '₹' + Math.round(n).toLocaleString('en-IN');
 const prog = el => { const r = el.getBoundingClientRect(); const run = el.offsetHeight - innerHeight; return run > 0 ? clamp(-r.top / run, 0, 1) : (r.top < innerHeight * .6 ? 1 : 0); };
 const view = el => { const r = el.getBoundingClientRect(); return clamp((innerHeight - r.top) / (innerHeight + r.height), 0, 1); };
@@ -330,7 +330,7 @@ $$('.fz-stage').forEach(st => {
   }
   const stub = $('.fz-stub', st);
   if (stub) stub.addEventListener('click', () => { if (stub.classList.contains('torn')) return; stub.classList.add('torn');
-    setTimeout(() => { location.href = 'tel:1800XXXXXXX'; }, 650); setTimeout(() => stub.classList.remove('torn'), 2600); });
+    setTimeout(() => { location.href = 'https://wa.me/917483919241'; }, 650); setTimeout(() => stub.classList.remove('torn'), 2600); });
 });
 
 
@@ -587,7 +587,7 @@ requestAnimationFrame(frame);
     const t = ['Fraud report from the Laboura website', '', 'What: ' + f.querySelector('[name=kind]:checked').value,
       'Their number, UPI or website: ' + (E.them.value.trim() || 'Not known'), 'Money paid: ' + (E.paid.value.trim() || 'Not said'),
       '', E.what.value.trim(), '', 'My phone: +91 ' + E.phone.value].join('\n');
-    window.open('https://wa.me/91XXXXXXXXXX?text=' + encodeURIComponent(t), '_blank', 'noopener');
+    window.open('https://wa.me/917483919241?text=' + encodeURIComponent(t), '_blank', 'noopener');
     f.innerHTML = '<div class="frf-done"><span class="eq-tick" aria-hidden="true"></span><h3>Thank you for telling us.</h3><p>Your report is ready in WhatsApp. Press send there. We reply within 24 hours.</p></div>';
   });
 })();

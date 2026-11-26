@@ -177,7 +177,7 @@ requestAnimationFrame(frame);
    Tapping a job opens a small panel with three ways to start: missed call, WhatsApp (message ready), the app. */
 (() => {
   const sec = document.getElementById('sectors'); if (!sec) return;
-  const WA = 'https://wa.me/91XXXXXXXXXX?text=';
+  const WA = 'https://wa.me/917483919241?text=';
   const btns = [...sec.querySelectorAll('.sx-mode button')], cards = [...sec.querySelectorAll('.sxc')];
   const jp = document.getElementById('jp');
   if (jp) document.body.appendChild(jp);  /* keep the panel above everything, whatever its parent does */
