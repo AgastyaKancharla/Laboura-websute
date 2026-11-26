@@ -177,7 +177,7 @@ requestAnimationFrame(frame);
    Tapping a job opens a small panel with three ways to start: missed call, WhatsApp (message ready), the app. */
 (() => {
   const sec = document.getElementById('sectors'); if (!sec) return;
-  const WA = 'https://wa.me/91XXXXXXXXXX?text=';
+  const WA = 'https://wa.me/917483919241?text=';
   const btns = [...sec.querySelectorAll('.sx-mode button')], cards = [...sec.querySelectorAll('.sxc')];
   const jp = document.getElementById('jp');
   if (jp) document.body.appendChild(jp);  /* keep the panel above everything, whatever its parent does */
@@ -231,9 +231,11 @@ requestAnimationFrame(frame);
     jp.querySelector('.jp-k').textContent = staff ? 'Hire for this job' : 'Get this job';
     jp.querySelector('#jp-ask').textContent = staff ? 'How do you want to send your request?' : 'How do you want to start?';
     jp.querySelector('.jp-wa').href = WA + encodeURIComponent(msg(mode, role));
-    jp.querySelector('.jp-call small').textContent = staff ? 'Free. Our team calls you back.' : 'Free. We call you back.';
+    const jc = jp.querySelector('.jp-call');
+    if (jc){ jc.href = 'apply.html?for=' + (staff ? 'staff' : 'job') + '&role=' + encodeURIComponent(role); jc.querySelector('small').textContent = staff ? '1-minute form. Our team calls you back.' : '1-minute form. We call you back.'; }
     const app = jp.querySelector('.jp-app');
     app.querySelector('svg').innerHTML = staff ? '<path d="M7 3h7l4 4v14H7z"/><path d="M10 12h5M10 16h5"/>' : '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>';
+    app.hidden = !staff; /* app download comes back when the APK is hosted */
     if (staff){ app.href = 'company-enquiry.html'; app.querySelector('b').textContent = 'Fill the hiring form'; app.querySelector('small').textContent = 'For many people or many jobs at once.'; }
     else { app.href = '#'; app.querySelector('b').textContent = 'Download the Laboura app'; app.querySelector('small').textContent = 'Register yourself in 2 minutes.'; }
   };

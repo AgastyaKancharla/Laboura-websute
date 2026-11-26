@@ -20,6 +20,10 @@ const TZ = 'Asia/Kolkata';
 
 // One tab per kind of data. Columns are created automatically the first time.
 const TABS = {
+  jobseeker: { name: 'Job seekers', email: true,
+    cols: ['Time', 'Name', 'Phone', 'Job wanted', 'Experience', 'Area', 'Email', 'Page'] },
+  staff: { name: 'Staff requests', email: true,
+    cols: ['Time', 'Name', 'Business', 'Phone', 'Staff needed', 'How many', 'Area', 'Email', 'Page'] },
   enquiry: { name: 'Company enquiries', email: true,
     cols: ['Time', 'Company', 'Name', 'Phone', 'Email', 'Jobs', 'Total people', 'Page'] },
   fraud: { name: 'Fraud reports', email: true,
@@ -49,6 +53,7 @@ function doPost(e) {
 
     if (tab.email) alert(d, tab, row);
     if (d.kind === 'enquiry') thanks(d);
+    if (d.kind === 'jobseeker' || d.kind === 'staff') thanksShort(d);
     return reply(true);
   } catch (err) {
     console.error(err);
@@ -58,6 +63,8 @@ function doPost(e) {
 
 function rowFor(d, now) {
   switch (d.kind) {
+    case 'jobseeker': return [now, d.name, d.phone, d.role, d.experience, d.area, d.email, d.page];
+    case 'staff':   return [now, d.name, d.business, d.phone, d.role, d.count, d.area, d.email, d.page];
     case 'enquiry': return [now, d.company, d.name, d.phone, d.email, d.jobs, d.total, d.page];
     case 'fraud':   return [now, d.what, d.them, d.paid, d.details, d.phone, d.page];
     default:        return [now, d.button, d.job, d.message, d.label, d.page, d.device];
@@ -79,6 +86,8 @@ function sheetFor(tab) {
 function alert(d, tab, row) {
   const subject = d.kind === 'enquiry'
     ? `New company enquiry: ${clip(d.company, 60)} (${d.total || '?'} people)`
+    : d.kind === 'jobseeker' ? `New job seeker: ${clip(d.name, 40)}, ${clip(d.role, 40)}, ${clip(d.area, 40)}`
+    : d.kind === 'staff' ? `New staff request: ${d.count || '?'} ${clip(d.role, 40)} for ${clip(d.business, 50)}, ${clip(d.area, 40)}`
     : `Fraud report from +91 ${clip(String(d.phone || '').replace(/^\+91\s*/, ''), 20)}`;
   const body = tab.cols.map((c, i) => `${c}: ${row[i] == null || row[i] === '' ? '-' : row[i]}`).join('\n');
   const opts = { to: ALERT_TO, subject, body, name: 'Laboura website' };
@@ -100,6 +109,21 @@ function thanks(d) {
       + `Team Laboura\nhello@laboura.com\nhttps://www.laboura.in`;
     MailApp.sendEmail({ to: d.email, subject: 'We have your enquiry - Laboura', body,
                         name: 'Laboura', replyTo: ALERT_TO });
+  } catch (err) { console.error(err); }
+}
+
+// Thank-you email for the short job / staff form (only when they gave an email).
+function thanksShort(d) {
+  if (!d.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return;
+  try {
+    const name = clip(d.name || '', 60) || 'there';
+    const what = d.kind === 'staff'
+      ? `your request for ${d.count || 1} ${clip(d.role || 'staff', 60)} at ${clip(d.business || 'your business', 80)}`
+      : `your details for ${clip(d.role || 'a job', 60)} jobs near ${clip(d.area || 'you', 60)}`;
+    const body = `Hi ${name},\n\nThank you for contacting Laboura. We have ${what}.\n\n`
+      + `Our team will call you on ${clip(d.phone || 'your number', 20)} within 24 hours `
+      + `(Monday to Saturday, 9:30 am to 7 pm).\n\nTeam Laboura\nhello@laboura.com\nhttps://www.laboura.in`;
+    MailApp.sendEmail({ to: d.email, subject: 'We have your details - Laboura', body, name: 'Laboura', replyTo: ALERT_TO });
   } catch (err) { console.error(err); }
 }
 

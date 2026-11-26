@@ -3,7 +3,7 @@
    Otherwise it opens WhatsApp with the enquiry written out, ready to send. */
 (() => {
   const form = document.getElementById('eq-form'); if (!form) return;
-  const WA = 'https://wa.me/91XXXXXXXXXX';
+  const WA = 'https://wa.me/917483919241';
   const list = document.getElementById('eq-jobs'), add = document.getElementById('eq-add');
   const err = document.getElementById('eq-err'), done = document.getElementById('eq-done');
   const tot = document.getElementById('eq-total'), totL = document.getElementById('eq-total-l');

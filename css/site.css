@@ -2285,3 +2285,28 @@ html.jp-open .fab{opacity:0;pointer-events:none}
 .eq-pick li:hover,.eq-pick li.on{background:#FFF1E6}
 .eq-pick li.own{color:#0A4FD8;font-weight:700}
 .eq-job{position:relative}.eq-job:focus-within{z-index:6}
+
+/* ---------- Get a job / Hire staff short form (apply.html) ---------- */
+.ap-pick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ap-big{position:relative;cursor:pointer}
+.ap-big input,.ap-chip input{position:absolute;opacity:0;pointer-events:none}
+.ap-big span{display:block;height:100%;padding:18px 18px 16px;border:1.5px solid #F3C9A1;border-radius:18px;background:#FFF8F1;transition:border-color .2s,box-shadow .2s,transform .2s}
+.ap-big.staff span{border-color:#BBD0F7;background:#F3F7FF}
+.ap-big b{display:block;font:700 18px/1.2 var(--body);color:#000}
+.ap-big small{display:block;margin-top:4px;font:400 14px/1.35 var(--body);color:#555}
+.ap-big:hover span{transform:translateY(-1px)}
+.ap-big input:checked+span{border-color:#E06A00;box-shadow:0 0 0 4px rgba(224,106,0,.16)}
+.ap-big.staff input:checked+span{border-color:#0A4FD8;box-shadow:0 0 0 4px rgba(10,79,216,.14)}
+.ap-big input:focus-visible+span{outline:2px solid #000;outline-offset:2px}
+.ap-part[hidden],.ap-sum[hidden]{display:none}
+.ap-role{position:relative}
+.ap-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ap-chip{position:relative;cursor:pointer}
+.ap-chip span{display:inline-block;padding:12px 16px;border:1.5px solid #DADAE0;border-radius:999px;background:#FAFAFB;font:600 15px/1 var(--body);color:#222}
+.ap-chip input:checked+span{border-color:#E06A00;background:#FFF1E6;color:#8A3A00}
+.ap-chip input:focus-visible+span{outline:2px solid #000;outline-offset:2px}
+.ap-need{display:grid;grid-template-columns:1fr 150px;gap:0 12px;align-items:end}
+.eq-f em{font-style:normal;font-weight:400;color:#888}
+.ap-sum-t{font:500 15px/1.3 var(--body)!important}
+.ap-many{margin-top:4px}
+@media (max-width:640px){.ap-pick{grid-template-columns:1fr 1fr;gap:8px}.ap-big span{padding:14px 12px}.ap-big b{font-size:16px}.ap-need{grid-template-columns:1fr 130px}}
