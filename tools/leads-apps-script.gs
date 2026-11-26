@@ -80,8 +80,7 @@ function alert(d, tab, row) {
   const subject = d.kind === 'enquiry'
     ? `New company enquiry: ${clip(d.company, 60)} (${d.total || '?'} people)`
     : `Fraud report from +91 ${clip(String(d.phone || '').replace(/^\+91\s*/, ''), 20)}`;
-  const body = tab.cols.map((c, i) => `${c}: ${row[i] == null || row[i] === '' ? '-' : row[i]}`).join('\n')
-    + `\n\nAll leads: ${SpreadsheetApp.getActiveSpreadsheet().getUrl()}`;
+  const body = tab.cols.map((c, i) => `${c}: ${row[i] == null || row[i] === '' ? '-' : row[i]}`).join('\n');
   const opts = { to: ALERT_TO, subject, body, name: 'Laboura website' };
   if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = d.email;
   MailApp.sendEmail(opts);
