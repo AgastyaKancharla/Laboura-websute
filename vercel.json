@@ -23,6 +23,16 @@
   ],
   "redirects": [
     {
+      "source": "/company-enquiry",
+      "destination": "/apply",
+      "permanent": false
+    },
+    {
+      "source": "/company-enquiry.html",
+      "destination": "/apply",
+      "permanent": false
+    },
+    {
       "source": "/:path*",
       "has": [
         {
