@@ -152,7 +152,7 @@ const BROLES = {
 };
 window.LB_BIZ = { n: 2, role: 'cook', plural: 'cooks', city: 'Chennai', salary: 10000 };
 const bizText = () => { const b = LB_BIZ, r = BROLES[b.role] || BROLES.cook, word = b.n === 1 ? b.role : b.plural;
-  return { n: b.n, word, nwho: `${b.n} ${word}`, city: b.city, placeA: r[0], sector: r[1], salary: inr(b.salary), fee: inr(b.salary / 2), feeN: b.salary / 2 }; };
+  return { n: b.n, word, nwho: `${b.n} ${word}`, city: b.city, placeA: r[0], sector: r[1], salary: inr(b.salary), fee: inr(Math.round(b.salary * 0.15)), feeN: Math.round(b.salary * 0.15) }; };
 function applyBiz(){
   const t = bizText();
   $$('[data-b]').forEach(el => { const k = el.dataset.b; const v = k === 'nwho' && el.closest('.jh-out') ? `${t.n} checked ${t.word}` : t[k]; if (v != null && el.textContent !== String(v)) el.textContent = v; });
@@ -208,7 +208,7 @@ if (bp){
   const sal = $('#bp-sal'), salO = $('#bp-sal-o'), nO = $('#bp-n-o'); let n = window.LB_BIZ ? LB_BIZ.n : 1; let quiet = false;
   if (window.LB_BIZ) sal.value = LB_BIZ.salary;
   document.addEventListener('lb:biz', e => { if (quiet) return; n = e.detail.n; upd(true); });
-  const upd = (fromBiz) => { const s = +sal.value, fee = s / 2, tot = fee * n;
+  const upd = (fromBiz) => { const s = +sal.value, fee = Math.round(s * 0.15), tot = fee * n;
     if (window.LB_BIZ && !fromBiz && (LB_BIZ.salary !== s || LB_BIZ.n !== n)){ LB_BIZ.salary = s; LB_BIZ.n = n; quiet = true; applyBiz(); quiet = false; }
     salO.textContent = inr(s); nO.textContent = n; $('#bp-fee').textContent = inr(fee); $('#bp-tot').textContent = inr(tot); $('#bp-gst').textContent = `${inr(tot * 1.18)} with 18% GST`; };
   sal.addEventListener('input', () => upd());

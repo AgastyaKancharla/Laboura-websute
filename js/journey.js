@@ -99,7 +99,7 @@ if (sec){
   function buildBiz(n){
     const b = biz(), T = 230, word = b.n === 1 ? b.role : b.plural;
     const l1 = [String(b.n)], l2 = [word + '.'], th = Math.round(T * 2.35), TN = T * 2.1;
-    const fee = '₹' + Math.round(b.salary / 2).toLocaleString('en-IN'), f2 = b.n > 1 ? '+ GST each' : '+ GST';
+    const fee = '₹' + Math.round(b.salary * 0.15).toLocaleString('en-IN'), f2 = b.n > 1 ? '+ GST each' : '+ GST';
     /* people scattered around the shop: the ones inside the ring live close by */
     let seed = 7; const R = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     const folk = []; for (let i = 0; i < 60 && folk.length < 22; i++){ const a = R() * Math.PI * 2, d = 150 + R() * 330; const x = 500 + Math.cos(a) * d * 1.3, y = 330 + Math.sin(a) * d * .6;
